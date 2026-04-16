@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="KINE — Set up and calibrate your posture necklace.">
+  <title>KINE — Device Setup</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<main id="app-container">
+
+  <!-- Step 1: Wear Instruction -->
+  <section class="screen active" id="wear-instruction">
+    <div style="display:flex;flex-direction:column;align-items:center;text-align:center;flex:1;justify-content:center;gap:16px;">
+      <h2 class="heading-lg">How to Wear KINE</h2>
+      <p style="color:var(--text-muted);max-width:300px;">Place the necklace around your neck and center the pendant at the front.</p>
+      <div class="wear-visual">
+        <div class="neck-circle">
+          <div class="necklace-line"></div>
+          <div class="necklace-pendant"></div>
+        </div>
+      </div>
+      <button class="btn btn-primary btn-lg" data-step="bluetooth-pairing">Next <i class="ph ph-arrow-right"></i></button>
+    </div>
+  </section>
+
+  <!-- Step 2: Bluetooth Pairing -->
+  <section class="screen" id="bluetooth-pairing">
+    <div style="display:flex;flex-direction:column;align-items:center;flex:1;">
+      <h2 class="heading-lg" style="margin-bottom:8px;">Find Your KINE</h2>
+      <p style="color:var(--text-muted);">Searching for nearby devices…</p>
+      <div class="radar-container">
+        <div class="radar-ring"></div>
+        <div class="radar-ring"></div>
+        <div class="radar-ring"></div>
+        <div class="radar-dot"></div>
+      </div>
+      <div class="device-list" style="width:100%;max-width:360px;">
+        <div class="device-item" data-step="pairing-success">
+          <div class="device-icon"><i class="ph ph-bluetooth"></i></div>
+          <span class="device-name">KINE-A3F2</span>
+          <span class="device-signal">Strong</span>
+        </div>
+        <div class="device-item">
+          <div class="device-icon"><i class="ph ph-bluetooth"></i></div>
+          <span class="device-name">KINE-B7D1</span>
+          <span class="device-signal">Weak</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Step 3: Pairing Success -->
+  <section class="screen success-screen" id="pairing-success">
+    <div class="success-check"><i class="ph ph-check"></i></div>
+    <h2 class="heading-lg">Connected!</h2>
+    <p style="color:var(--text-muted);">KINE-A3F2 is now paired.</p>
+    <button class="btn btn-primary btn-lg" data-step="first-calibration" style="margin-top:16px;">Continue</button>
+  </section>
+
+  <!-- Step 4: First Calibration -->
+  <section class="screen" id="first-calibration">
+    <div style="display:flex;flex-direction:column;align-items:center;text-align:center;flex:1;justify-content:center;gap:16px;">
+      <h2 class="heading-lg">Calibrate Your Posture</h2>
+      <p style="color:var(--text-muted);max-width:300px;">Sit up straight and look ahead. We'll record your ideal posture baseline.</p>
+      <div class="calibration-visual">
+        <i class="ph ph-crosshair" style="font-size:2rem;color:var(--accent-secondary);z-index:1;"></i>
+      </div>
+      <div id="baseline-display" style="font-size:1.5rem;font-weight:600;margin-top:8px;">Baseline: --</div>
+      <button class="btn btn-primary btn-lg" id="set-baseline-btn" data-step="calibration-success" style="margin-top:16px;"><i class="ph ph-target"></i> Set Baseline</button>
+    </div>
+  </section>
+
+  <!-- Step 5: Calibration Success -->
+  <section class="screen success-screen" id="calibration-success">
+    <div class="success-check"><i class="ph ph-check"></i></div>
+    <h2 class="heading-lg">Baseline Set!</h2>
+    <p style="color:var(--text-muted);">Your posture baseline has been recorded. You're all set.</p>
+    <button class="btn btn-primary btn-lg" data-navigate="user-selection" style="margin-top:16px;">Continue</button>
+  </section>
+
+</main>
+
+<!-- Internal step navigation for this multi-step wizard -->
+<script>
+(function() {
+  const steps = document.querySelectorAll('#app-container .screen');
+
+  function goToStep(stepId) {
+    steps.forEach(s => s.classList.remove('active'));
+    const target = document.getElementById(stepId);
+    if (target) {
+      target.classList.add('active');
+      window.scrollTo(0, 0);
+    }
+  }
+
+  document.querySelectorAll('[data-step]').forEach(el => {
+    el.addEventListener('click', function(e) {
+      e.preventDefault();
+      goToStep(this.dataset.step);
+    });
+  });
+})();
+</script>
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="auth.js"></script>
+  <script src="nav.js"></script>
+
+  <script>
+    (function() {
+      KINEAuth.requireAuth();
+
+      const db = window.KINE_FIREBASE ? window.KINE_FIREBASE.db : firebase.database();
+      const setBaselineBtn = document.getElementById('set-baseline-btn');
+      const baselineDisplay = document.getElementById('baseline-display');
+
+      if (setBaselineBtn) {
+        setBaselineBtn.addEventListener('click', function() {
+          db.ref('/control/calibrate').set(true).then(() => {
+            console.log("Baseline command sent (/control/calibrate).");
+          }).catch(err => {
+            console.error("Error setting baseline:", err);
+          });
+        });
+      }
+
+      if (baselineDisplay) {
+        db.ref('/device/baseline').on('value', (snapshot) => {
+          const val = snapshot.val();
+          baselineDisplay.innerText = `Baseline: ${val !== null ? val : '--'}`;
+        });
+      }
+    })();
+  </script>
+</body>
+</html>

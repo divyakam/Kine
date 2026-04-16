@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="KINE — Manage your device, account, and preferences.">
+  <title>KINE — Settings</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<main id="app-container">
+  <section class="screen active" id="settings-hub">
+    <h2 class="screen-title">Settings</h2>
+    <p class="screen-subtitle">Manage your device and preferences.</p>
+
+    <div class="settings-section">
+      <h3>Device</h3>
+      <div class="card" style="padding:0;overflow:hidden;">
+        <div class="menu-list">
+          <div class="menu-item" data-navigate="device-management">
+            <i class="ph ph-bluetooth"></i>
+            <span class="menu-label">Device Management</span>
+            <i class="ph ph-caret-right menu-arrow"></i>
+          </div>
+          <div class="menu-item" data-navigate="recalibrate">
+            <i class="ph ph-crosshair"></i>
+            <span class="menu-label">Recalibrate</span>
+            <i class="ph ph-caret-right menu-arrow"></i>
+          </div>
+          <div class="menu-item" data-navigate="vibration-haptics">
+            <i class="ph ph-vibrate"></i>
+            <span class="menu-label">Vibration & Haptics</span>
+            <i class="ph ph-caret-right menu-arrow"></i>
+          </div>
+          <div class="menu-item" data-navigate="smart-sleep">
+            <i class="ph ph-moon"></i>
+            <span class="menu-label">Smart Sleep</span>
+            <i class="ph ph-caret-right menu-arrow"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <h3>Account</h3>
+      <div class="card" style="padding:0;overflow:hidden;">
+        <div class="menu-list">
+          <div class="menu-item" data-navigate="edit-profile">
+            <i class="ph ph-user-circle"></i>
+            <span class="menu-label">Edit Profile</span>
+            <i class="ph ph-caret-right menu-arrow"></i>
+          </div>
+          <div class="menu-item" data-navigate="notifications">
+            <i class="ph ph-bell"></i>
+            <span class="menu-label">Notifications</span>
+            <i class="ph ph-caret-right menu-arrow"></i>
+          </div>
+          <div class="menu-item" data-navigate="user-selection">
+            <i class="ph ph-users-three"></i>
+            <span class="menu-label">Switch User</span>
+            <i class="ph ph-caret-right menu-arrow"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <h3>Support</h3>
+      <div class="card" style="padding:0;overflow:hidden;">
+        <div class="menu-list">
+          <div class="menu-item" data-navigate="help-support">
+            <i class="ph ph-question"></i>
+            <span class="menu-label">Help & FAQ</span>
+            <i class="ph ph-caret-right menu-arrow"></i>
+          </div>
+          <div class="menu-item">
+            <i class="ph ph-info"></i>
+            <span class="menu-label">About KINE</span>
+            <i class="ph ph-caret-right menu-arrow"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn btn-outline btn-block" data-navigate="log-in" style="margin-top:12px;"><i class="ph ph-sign-out"></i> Log Out</button>
+  </section>
+</main>
+
+<!-- Bottom Nav -->
+<nav class="bottom-nav" aria-label="Main navigation">
+  <a href="dashboard.html" class="nav-item" data-page="dashboard"><i class="ph ph-house"></i><span>Home</span></a>
+  <a href="live-posture.html" class="nav-item" data-page="live-posture"><i class="ph ph-activity"></i><span>Live</span></a>
+  <a href="journey.html" class="nav-item" data-page="journey"><i class="ph ph-trophy"></i><span>Journey</span></a>
+  <a href="analytics.html" class="nav-item" data-page="analytics"><i class="ph ph-chart-line-up"></i><span>Insights</span></a>
+  <a href="settings.html" class="nav-item" data-page="settings"><i class="ph ph-gear"></i><span>Settings</span></a>
+</nav>
+
+<!-- Side Nav -->
+<nav class="side-nav" aria-label="Main navigation">
+  <div class="nav-logo"><div class="logo-circle">K</div><span>KINE</span></div>
+  <a href="dashboard.html" class="nav-item" data-page="dashboard"><i class="ph ph-house"></i><span>Dashboard</span></a>
+  <a href="live-posture.html" class="nav-item" data-page="live-posture"><i class="ph ph-activity"></i><span>Live Posture</span></a>
+  <a href="journey.html" class="nav-item" data-page="journey"><i class="ph ph-trophy"></i><span>Journey</span></a>
+  <a href="analytics.html" class="nav-item" data-page="analytics"><i class="ph ph-chart-line-up"></i><span>Analytics</span></a>
+  <a href="timeline.html" class="nav-item" data-page="timeline"><i class="ph ph-clock-countdown"></i><span>Timeline</span></a>
+  <a href="missions.html" class="nav-item" data-page="missions"><i class="ph ph-target"></i><span>Missions</span></a>
+  <a href="leaderboard.html" class="nav-item" data-page="leaderboard"><i class="ph ph-ranking"></i><span>Leaderboard</span></a>
+  <div class="nav-spacer"></div>
+  <a href="settings.html" class="nav-item" data-page="settings"><i class="ph ph-gear"></i><span>Settings</span></a>
+</nav>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="auth.js"></script>
+  <script src="nav.js"></script>
+
+  <script>
+    (function() {
+      // Auth Guard
+      KINEAuth.requireAuth();
+
+      const logoutBtn = document.querySelector('button[data-navigate="log-in"]');
+      if (logoutBtn) {
+        logoutBtn.addEventListener('click', async (e) => {
+          e.preventDefault();
+          await KINEAuth.logOut();
+        });
+      }
+    })();
+  </script>
+</body>
+</html>

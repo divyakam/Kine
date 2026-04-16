@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="KINE — Manage your connected device and battery.">
+  <title>KINE — Device Management</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<main id="app-container">
+  <section class="screen active" id="device-management">
+    <a href="settings.html" class="back-btn"><i class="ph ph-arrow-left"></i> Back</a>
+    <h2 class="screen-title">Device Management</h2>
+    <p class="screen-subtitle">Your connected KINE device.</p>
+
+    <div class="battery-display">
+      <div class="battery-icon-container good">
+        <i class="ph ph-battery-high"></i>
+      </div>
+      <div>
+        <div style="font-size:1.5rem;font-weight:800;">82%</div>
+        <div style="font-size:0.8rem;color:var(--text-muted);">Battery — Approx 18h remaining</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="settings-row">
+        <div>
+          <div class="setting-label">Device Name</div>
+          <div class="setting-desc">KINE-A3F2</div>
+        </div>
+      </div>
+      <div class="settings-row">
+        <div>
+          <div class="setting-label">Firmware</div>
+          <div class="setting-desc">v2.1.4</div>
+        </div>
+        <span style="color:var(--success);font-size:0.8rem;font-weight:600;">Up to date</span>
+      </div>
+      <div class="settings-row">
+        <div>
+          <div class="setting-label">Serial</div>
+          <div class="setting-desc">KN-2024-A3F2-00891</div>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn btn-danger btn-block" style="margin-top:24px;"><i class="ph ph-link-break"></i> Unpair Device</button>
+  </section>
+</main>
+
+<!-- Bottom Nav -->
+<nav class="bottom-nav" aria-label="Main navigation">
+  <a href="dashboard.html" class="nav-item" data-page="dashboard"><i class="ph ph-house"></i><span>Home</span></a>
+  <a href="live-posture.html" class="nav-item" data-page="live-posture"><i class="ph ph-activity"></i><span>Live</span></a>
+  <a href="journey.html" class="nav-item" data-page="journey"><i class="ph ph-trophy"></i><span>Journey</span></a>
+  <a href="analytics.html" class="nav-item" data-page="analytics"><i class="ph ph-chart-line-up"></i><span>Insights</span></a>
+  <a href="settings.html" class="nav-item" data-page="settings"><i class="ph ph-gear"></i><span>Settings</span></a>
+</nav>
+
+<!-- Side Nav -->
+<nav class="side-nav" aria-label="Main navigation">
+  <div class="nav-logo"><div class="logo-circle">K</div><span>KINE</span></div>
+  <a href="dashboard.html" class="nav-item" data-page="dashboard"><i class="ph ph-house"></i><span>Dashboard</span></a>
+  <a href="live-posture.html" class="nav-item" data-page="live-posture"><i class="ph ph-activity"></i><span>Live Posture</span></a>
+  <a href="journey.html" class="nav-item" data-page="journey"><i class="ph ph-trophy"></i><span>Journey</span></a>
+  <a href="analytics.html" class="nav-item" data-page="analytics"><i class="ph ph-chart-line-up"></i><span>Analytics</span></a>
+  <a href="timeline.html" class="nav-item" data-page="timeline"><i class="ph ph-clock-countdown"></i><span>Timeline</span></a>
+  <a href="missions.html" class="nav-item" data-page="missions"><i class="ph ph-target"></i><span>Missions</span></a>
+  <a href="leaderboard.html" class="nav-item" data-page="leaderboard"><i class="ph ph-ranking"></i><span>Leaderboard</span></a>
+  <div class="nav-spacer"></div>
+  <a href="settings.html" class="nav-item" data-page="settings"><i class="ph ph-gear"></i><span>Settings</span></a>
+</nav>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="auth.js"></script>
+  <script src="db.js"></script>
+  <script src="nav.js"></script>
+
+  <script>
+    (function() {
+      // Auth Guard
+      KINEAuth.requireAuth();
+
+      KINEAuth.onReady(user => {
+        if (!user) return;
+
+        KINEdb.onDevice(user.uid, device => {
+          if (!device) return;
+
+          // Battery
+          const battVal = document.querySelector('.battery-display div div:first-child');
+          const battIcon = document.querySelector('.battery-icon-container Good i');
+          if (battVal) battVal.textContent = (device.battery || 0) + '%';
+          
+          // Device Details
+          const settingDescs = document.querySelectorAll('.setting-desc');
+          if (settingDescs[0]) settingDescs[0].textContent = device.name || 'Unknown';
+          if (settingDescs[1]) settingDescs[1].textContent = device.firmware || 'N/A';
+          if (settingDescs[2]) settingDescs[2].textContent = device.serial || 'N/A';
+        });
+      });
+    })();
+  </script>
+</body>
+</html>

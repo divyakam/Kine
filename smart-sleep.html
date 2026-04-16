@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="KINE — Configure automatic sleep mode schedule.">
+  <title>KINE — Smart Sleep</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<main id="app-container">
+  <section class="screen active" id="smart-sleep">
+    <a href="settings.html" class="back-btn"><i class="ph ph-arrow-left"></i> Back</a>
+    <h2 class="screen-title">Smart Sleep</h2>
+    <p class="screen-subtitle">Automatically disable vibrations during sleep.</p>
+
+    <div class="card" style="margin-bottom:20px;">
+      <div class="settings-row">
+        <span class="setting-label">Enable Smart Sleep</span>
+        <label class="toggle-switch">
+          <input type="checkbox" checked>
+          <span class="toggle-track"></span>
+        </label>
+      </div>
+    </div>
+
+    <div class="card">
+      <h4 class="heading-sm" style="margin-bottom:16px;">Sleep Schedule</h4>
+      <div class="time-picker-row">
+        <div>
+          <label style="font-size:0.75rem;color:var(--text-muted);font-weight:600;text-transform:uppercase;margin-bottom:6px;display:block;">Bedtime</label>
+          <input type="time" class="time-input" value="22:30">
+        </div>
+        <span style="color:var(--text-muted);font-size:1.2rem;margin-top:18px;">→</span>
+        <div>
+          <label style="font-size:0.75rem;color:var(--text-muted);font-weight:600;text-transform:uppercase;margin-bottom:6px;display:block;">Wake Up</label>
+          <input type="time" class="time-input" value="07:00">
+        </div>
+      </div>
+      <p style="font-size:0.8rem;color:var(--text-muted);margin-top:12px;">KINE will stop vibrating between these times but continue tracking.</p>
+    </div>
+  </section>
+</main>
+
+<!-- Bottom Nav -->
+<nav class="bottom-nav" aria-label="Main navigation">
+  <a href="dashboard.html" class="nav-item" data-page="dashboard"><i class="ph ph-house"></i><span>Home</span></a>
+  <a href="live-posture.html" class="nav-item" data-page="live-posture"><i class="ph ph-activity"></i><span>Live</span></a>
+  <a href="journey.html" class="nav-item" data-page="journey"><i class="ph ph-trophy"></i><span>Journey</span></a>
+  <a href="analytics.html" class="nav-item" data-page="analytics"><i class="ph ph-chart-line-up"></i><span>Insights</span></a>
+  <a href="settings.html" class="nav-item" data-page="settings"><i class="ph ph-gear"></i><span>Settings</span></a>
+</nav>
+
+<!-- Side Nav -->
+<nav class="side-nav" aria-label="Main navigation">
+  <div class="nav-logo"><div class="logo-circle">K</div><span>KINE</span></div>
+  <a href="dashboard.html" class="nav-item" data-page="dashboard"><i class="ph ph-house"></i><span>Dashboard</span></a>
+  <a href="live-posture.html" class="nav-item" data-page="live-posture"><i class="ph ph-activity"></i><span>Live Posture</span></a>
+  <a href="journey.html" class="nav-item" data-page="journey"><i class="ph ph-trophy"></i><span>Journey</span></a>
+  <a href="analytics.html" class="nav-item" data-page="analytics"><i class="ph ph-chart-line-up"></i><span>Analytics</span></a>
+  <a href="timeline.html" class="nav-item" data-page="timeline"><i class="ph ph-clock-countdown"></i><span>Timeline</span></a>
+  <a href="missions.html" class="nav-item" data-page="missions"><i class="ph ph-target"></i><span>Missions</span></a>
+  <a href="leaderboard.html" class="nav-item" data-page="leaderboard"><i class="ph ph-ranking"></i><span>Leaderboard</span></a>
+  <div class="nav-spacer"></div>
+  <a href="settings.html" class="nav-item" data-page="settings"><i class="ph ph-gear"></i><span>Settings</span></a>
+</nav>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="auth.js"></script>
+  <script src="db.js"></script>
+  <script src="nav.js"></script>
+
+  <script>
+    (function() {
+      // Auth Guard
+      KINEAuth.requireAuth();
+
+      KINEAuth.onReady(user => {
+        if (!user) return;
+
+        const sleepToggle = document.querySelector('.toggle-switch input');
+        const bedtimeInput = document.querySelectorAll('.time-input')[0];
+        const wakeUpInput = document.querySelectorAll('.time-input')[1];
+
+        // Load initial settings
+        KINEdb.onSettings(user.uid, 'smartSleep', settings => {
+          if (!settings) return;
+
+          if (sleepToggle) sleepToggle.checked = settings.enabled;
+          if (bedtimeInput) bedtimeInput.value = settings.bedtime;
+          if (wakeUpInput) wakeUpInput.value = settings.wakeUp;
+        });
+
+        // Listen for changes and update DB
+        if (sleepToggle) {
+          sleepToggle.addEventListener('change', () => {
+            KINEdb.updateSettings(user.uid, 'smartSleep', { enabled: sleepToggle.checked });
+          });
+        }
+
+        if (bedtimeInput) {
+          bedtimeInput.addEventListener('change', () => {
+            KINEdb.updateSettings(user.uid, 'smartSleep', { bedtime: bedtimeInput.value });
+          });
+        }
+
+        if (wakeUpInput) {
+          wakeUpInput.addEventListener('change', () => {
+            KINEdb.updateSettings(user.uid, 'smartSleep', { wakeUp: wakeUpInput.value });
+          });
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

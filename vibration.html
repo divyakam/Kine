@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="KINE — Customize vibration intensity and haptic patterns.">
+  <title>KINE — Vibration & Haptics</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<main id="app-container">
+  <section class="screen active" id="vibration-haptics">
+    <a href="settings.html" class="back-btn"><i class="ph ph-arrow-left"></i> Back</a>
+    <h2 class="screen-title">Vibration & Haptics</h2>
+    <p class="screen-subtitle">Customize your feedback intensity.</p>
+
+    <div class="card" style="margin-bottom:20px;">
+      <div class="settings-row">
+        <span class="setting-label">Enable Vibration</span>
+        <label class="toggle-switch">
+          <input type="checkbox" checked>
+          <span class="toggle-track"></span>
+        </label>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:20px;">
+      <div class="slider-group">
+        <div class="slider-header">
+          <span class="setting-label">Intensity</span>
+          <span class="slider-value">70%</span>
+        </div>
+        <input type="range" class="range-slider" min="0" max="100" value="70">
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:20px;">
+      <div class="slider-group">
+        <div class="slider-header">
+          <span class="setting-label">Correction Delay</span>
+          <span class="slider-value">50%</span>
+        </div>
+        <input type="range" class="range-slider" min="0" max="100" value="50">
+        <p style="font-size:0.8rem;color:var(--text-muted);">How long to wait before vibrating after a slouch is detected.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="settings-row">
+        <span class="setting-label">Haptic Pattern</span>
+        <label class="toggle-switch">
+          <input type="checkbox">
+          <span class="toggle-track"></span>
+        </label>
+      </div>
+      <p style="font-size:0.8rem;color:var(--text-muted);margin-top:8px;">Use rhythmic pulses instead of a single buzz.</p>
+    </div>
+  </section>
+</main>
+
+<!-- Bottom Nav -->
+<nav class="bottom-nav" aria-label="Main navigation">
+  <a href="dashboard.html" class="nav-item" data-page="dashboard"><i class="ph ph-house"></i><span>Home</span></a>
+  <a href="live-posture.html" class="nav-item" data-page="live-posture"><i class="ph ph-activity"></i><span>Live</span></a>
+  <a href="journey.html" class="nav-item" data-page="journey"><i class="ph ph-trophy"></i><span>Journey</span></a>
+  <a href="analytics.html" class="nav-item" data-page="analytics"><i class="ph ph-chart-line-up"></i><span>Insights</span></a>
+  <a href="settings.html" class="nav-item" data-page="settings"><i class="ph ph-gear"></i><span>Settings</span></a>
+</nav>
+
+<!-- Side Nav -->
+<nav class="side-nav" aria-label="Main navigation">
+  <div class="nav-logo"><div class="logo-circle">K</div><span>KINE</span></div>
+  <a href="dashboard.html" class="nav-item" data-page="dashboard"><i class="ph ph-house"></i><span>Dashboard</span></a>
+  <a href="live-posture.html" class="nav-item" data-page="live-posture"><i class="ph ph-activity"></i><span>Live Posture</span></a>
+  <a href="journey.html" class="nav-item" data-page="journey"><i class="ph ph-trophy"></i><span>Journey</span></a>
+  <a href="analytics.html" class="nav-item" data-page="analytics"><i class="ph ph-chart-line-up"></i><span>Analytics</span></a>
+  <a href="timeline.html" class="nav-item" data-page="timeline"><i class="ph ph-clock-countdown"></i><span>Timeline</span></a>
+  <a href="missions.html" class="nav-item" data-page="missions"><i class="ph ph-target"></i><span>Missions</span></a>
+  <a href="leaderboard.html" class="nav-item" data-page="leaderboard"><i class="ph ph-ranking"></i><span>Leaderboard</span></a>
+  <div class="nav-spacer"></div>
+  <a href="settings.html" class="nav-item" data-page="settings"><i class="ph ph-gear"></i><span>Settings</span></a>
+</nav>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="auth.js"></script>
+  <script src="db.js"></script>
+  <script src="nav.js"></script>
+
+  <script>
+    (function() {
+      // Auth Guard
+      KINEAuth.requireAuth();
+
+      KINEAuth.onReady(user => {
+        if (!user) return;
+
+        const vibEnabled = document.querySelector('.toggle-switch input');
+        const intensitySlider = document.querySelector('.range-slider[value="70"]');
+        const delaySlider = document.querySelector('.range-slider[value="50"]');
+        const hapticToggle = document.querySelector('input[type="checkbox"]:not([checked])');
+
+        // Load initial settings
+        KINEdb.onSettings(user.uid, 'vibration', settings => {
+          if (!settings) return;
+          
+          if (vibEnabled) vibEnabled.checked = settings.enabled;
+          if (intensitySlider) {
+            intensitySlider.value = settings.intensity;
+            intensitySlider.dispatchEvent(new Event('input'));
+          }
+          if (delaySlider) {
+            delaySlider.value = settings.correctionDelay;
+            delaySlider.dispatchEvent(new Event('input'));
+          }
+        });
+
+        // Listen for changes and update DB
+        if (vibEnabled) {
+          vibEnabled.addEventListener('change', () => {
+            KINEdb.updateSettings(user.uid, 'vibration', { enabled: vibEnabled.checked });
+          });
+        }
+
+        if (intensitySlider) {
+          intensitySlider.addEventListener('change', () => {
+            KINEdb.updateSettings(user.uid, 'vibration', { intensity: parseInt(intensitySlider.value) });
+          });
+        }
+
+        if (delaySlider) {
+          delaySlider.addEventListener('change', () => {
+            KINEdb.updateSettings(user.uid, 'vibration', { correctionDelay: parseInt(delaySlider.value) });
+          });
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

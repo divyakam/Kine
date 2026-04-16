@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="KINE — Select or create a user profile.">
+  <title>KINE — Select User</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<main id="app-container">
+
+  <!-- Step 1: User Selection -->
+  <section class="screen active" id="user-selection">
+    <div style="text-align:center;padding-top:40px;">
+      <h2 class="heading-xl">Who is wearing KINE?</h2>
+      <p style="color:var(--text-muted);margin-top:8px;">Select your profile to continue.</p>
+      <div class="user-grid" style="max-width:400px;margin:32px auto 0;">
+        <div class="user-grid-item" data-navigate="home-dashboard">
+          <div class="avatar avatar-xl avatar-glow">A</div>
+          <span>Alex</span>
+        </div>
+        <div class="user-grid-item" data-navigate="home-dashboard">
+          <div class="avatar avatar-xl" style="background:linear-gradient(135deg,#FDE68A,#FCD34D);color:#92400E;">S</div>
+          <span>Sam</span>
+        </div>
+        <div class="user-grid-item" data-step="add-profile">
+          <div class="add-user-circle"><i class="ph ph-plus"></i></div>
+          <span style="color:var(--text-muted);">Add</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Step 2: Add Profile -->
+  <section class="screen" id="add-profile">
+    <button class="back-btn" data-step="user-selection"><i class="ph ph-arrow-left"></i> Back</button>
+    <h2 class="screen-title">New Profile</h2>
+    <p class="screen-subtitle">Add a new user for KINE.</p>
+    <div class="card" style="max-width:420px;">
+      <div style="display:flex;justify-content:center;margin-bottom:24px;">
+        <div class="avatar avatar-xl" style="cursor:pointer;position:relative;">
+          <i class="ph ph-camera" style="font-size:1.5rem;"></i>
+        </div>
+      </div>
+      <div class="input-group">
+        <label for="profile-name">Name</label>
+        <input type="text" id="profile-name" class="input-field" placeholder="Name">
+      </div>
+      <div class="input-group">
+        <label for="profile-age">Age</label>
+        <input type="number" id="profile-age" class="input-field" placeholder="25">
+      </div>
+      <div class="input-group">
+        <label for="profile-height">Height (cm)</label>
+        <input type="number" id="profile-height" class="input-field" placeholder="170">
+      </div>
+      <button class="btn btn-primary btn-block" data-step="profile-calib">Create & Calibrate</button>
+    </div>
+  </section>
+
+  <!-- Step 3: Profile-Specific Calibration -->
+  <section class="screen" id="profile-calib">
+    <div style="display:flex;flex-direction:column;align-items:center;text-align:center;flex:1;justify-content:center;gap:16px;">
+      <h2 class="heading-lg">Calibrate for New User</h2>
+      <p style="color:var(--text-muted);max-width:300px;">Sit up straight. We'll set the baseline for this profile.</p>
+      <div class="calibration-visual">
+        <i class="ph ph-crosshair" style="font-size:2rem;color:var(--accent-secondary);z-index:1;"></i>
+      </div>
+      <div id="baseline-display" style="font-size:1.5rem;font-weight:600;margin-top:8px;">Baseline: --</div>
+      <button class="btn btn-primary btn-lg" id="set-baseline-btn" data-navigate="home-dashboard" style="margin-top:16px;"><i class="ph ph-target"></i> Set Baseline</button>
+    </div>
+  </section>
+
+</main>
+
+<!-- Internal step navigation -->
+<script>
+(function() {
+  const steps = document.querySelectorAll('#app-container .screen');
+
+  function goToStep(stepId) {
+    steps.forEach(s => s.classList.remove('active'));
+    const target = document.getElementById(stepId);
+    if (target) {
+      target.classList.add('active');
+      window.scrollTo(0, 0);
+    }
+  }
+
+  document.querySelectorAll('[data-step]').forEach(el => {
+    el.addEventListener('click', function(e) {
+      e.preventDefault();
+      goToStep(this.dataset.step);
+    });
+  });
+})();
+</script>
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="auth.js"></script>
+  <script src="nav.js"></script>
+
+  <script>
+    (function() {
+      KINEAuth.requireAuth();
+
+      const db = window.KINE_FIREBASE ? window.KINE_FIREBASE.db : firebase.database();
+      const setBaselineBtn = document.getElementById('set-baseline-btn');
+      const baselineDisplay = document.getElementById('baseline-display');
+
+      if (setBaselineBtn) {
+        setBaselineBtn.addEventListener('click', function() {
+          db.ref('/control/calibrate').set(true).then(() => {
+            console.log("Baseline command sent (/control/calibrate).");
+          }).catch(err => {
+            console.error("Error setting baseline:", err);
+          });
+        });
+      }
+
+      if (baselineDisplay) {
+        db.ref('/device/baseline').on('value', (snapshot) => {
+          const val = snapshot.val();
+          baselineDisplay.innerText = `Baseline: ${val !== null ? val : '--'}`;
+        });
+      }
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KINE — Firebase Diagnostic Tool</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    body { background: #f8f9fa; font-family: 'Inter', sans-serif; padding: 20px; }
+    .card { background: white; border-radius: 16px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); max-width: 600px; margin: 0 auto; }
+    h1 { margin-top: 0; font-size: 1.5rem; color: #1a1a1a; }
+    .status-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #eee; }
+    .status-label { font-weight: 500; color: #666; }
+    .status-value { font-weight: 600; }
+    .status-value.success { color: #10B981; }
+    .status-value.error { color: #EF4444; }
+    .status-value.pending { color: #F59E0B; }
+    .log-container { background: #1e1e1e; color: #d4d4d4; padding: 16px; border-radius: 8px; font-family: 'Courier New', Courier, monospace; font-size: 0.85rem; height: 200px; overflow-y: auto; margin-top: 20px; }
+    .btn-group { display: flex; gap: 12px; margin-top: 20px; }
+    .btn { flex: 1; padding: 12px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+    .btn-primary { background: #1a1a1a; color: white; }
+    .btn-secondary { background: #eee; color: #333; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Firebase Diagnostic Tool</h1>
+    <p style="color: #666; font-size: 0.9rem; margin-bottom: 24px;">This tool tests your connection to Firebase and checks if your session persists.</p>
+
+    <div class="status-item">
+      <span class="status-label">SDK Loading</span>
+      <span id="sdk-status" class="status-value pending">Checking...</span>
+    </div>
+    <div class="status-item">
+      <span class="status-label">Auth Initialization</span>
+      <span id="auth-status" class="status-value pending">Waiting...</span>
+    </div>
+    <div class="status-item">
+      <span class="status-label">Database Connection</span>
+      <span id="db-status" class="status-value pending">Waiting...</span>
+    </div>
+    <div class="status-item">
+      <span class="status-label">Current User</span>
+      <span id="user-status" class="status-value">None</span>
+    </div>
+
+    <div class="log-container" id="logs">
+      [System] Diagnostic ready...
+    </div>
+
+    <div class="btn-group">
+      <button class="btn btn-primary" onclick="runTests()">Run Connection Test</button>
+      <button class="btn btn-secondary" onclick="location.reload()">Refresh Page</button>
+    </div>
+    <div class="btn-group" style="margin-top: 10px;">
+      <button class="btn btn-secondary" onclick="window.location.href='signup.html'">Go to Signup</button>
+      <button class="btn btn-secondary" onclick="window.location.href='login.html'">Go to Login</button>
+    </div>
+  </div>
+
+  <!-- Firebase SDKs with Error Handlers -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js" onerror="reportError('Firebase Core')"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js" onerror="reportError('Firebase Auth')"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js" onerror="reportError('Firebase Database')"></script>
+  <script src="firebase-config.js" onerror="reportError('Local Config')"></script>
+
+  <script>
+    const logEl = document.getElementById('logs');
+    function log(msg, type = 'info') {
+      const entry = document.createElement('div');
+      entry.style.color = type === 'error' ? '#ff4d4d' : (type === 'success' ? '#4dff4d' : '#d4d4d4');
+      entry.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+      logEl.appendChild(entry);
+      logEl.scrollTop = logEl.scrollHeight;
+    }
+
+    function reportError(name) {
+      document.getElementById('sdk-status').textContent = 'BLOCKED';
+      document.getElementById('sdk-status').className = 'status-value error';
+      log(`🚨 CRITICAL: Browser blocked ${name}. Check your AdBlocker or Tracking Prevention!`, 'error');
+    }
+
+    window.onload = function() {
+      log('Page loaded. Checking scripts...');
+      
+      setTimeout(() => {
+        if (typeof firebase !== 'undefined') {
+          document.getElementById('sdk-status').textContent = 'Loaded';
+          document.getElementById('sdk-status').className = 'status-value success';
+          log('✅ Firebase SDK is available.', 'success');
+          startAuthCheck();
+        } else {
+          reportError('Firebase Global Object');
+        }
+      }, 1000);
+    };
+
+    function startAuthCheck() {
+      const auth = firebase.auth();
+      log('Initializing Auth listener...');
+      
+      auth.onAuthStateChanged(user => {
+        document.getElementById('auth-status').textContent = 'Active';
+        document.getElementById('auth-status').className = 'status-value success';
+        
+        if (user) {
+          document.getElementById('user-status').textContent = user.email;
+          log(`👤 Session Active: ${user.email}`, 'success');
+        } else {
+          document.getElementById('user-status').textContent = 'Not Logged In';
+          log('ℹ️ No user session found.');
+        }
+      });
+    }
+
+    async function runTests() {
+      if (typeof firebase === 'undefined') {
+        log('❌ Cannot run tests: Firebase SDK is missing.', 'error');
+        return;
+      }
+
+      log('⏳ Starting Connection tests...');
+      const db = firebase.database();
+      
+      try {
+        log('📡 Attempting to write to /connectivity_test...');
+        const testRef = db.ref('connectivity_test');
+        await testRef.set({
+          timestamp: firebase.database.ServerValue.TIMESTAMP,
+          userAgent: navigator.userAgent,
+          url: window.location.href
+        });
+        document.getElementById('db-status').textContent = 'Connected';
+        document.getElementById('db-status').className = 'status-value success';
+        log('✅ Database Write Successful!', 'success');
+      } catch (err) {
+        document.getElementById('db-status').textContent = 'Error';
+        document.getElementById('db-status').className = 'status-value error';
+        log(`❌ Database Error: ${err.message}`, 'error');
+      }
+    }
+  </script>
+</body>
+</html>

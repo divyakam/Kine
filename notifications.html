@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="KINE — Manage your notification preferences.">
+  <title>KINE — Notifications</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<main id="app-container">
+  <section class="screen active" id="notifications">
+    <a href="settings.html" class="back-btn"><i class="ph ph-arrow-left"></i> Back</a>
+    <h2 class="screen-title">Notifications</h2>
+    <p class="screen-subtitle">Choose what alerts you receive.</p>
+
+    <div class="card">
+      <div class="settings-row">
+        <div>
+          <div class="setting-label">Posture Alerts</div>
+          <div class="setting-desc">Get notified about slouch events</div>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" checked>
+          <span class="toggle-track"></span>
+        </label>
+      </div>
+      <div class="settings-row">
+        <div>
+          <div class="setting-label">Daily Summary</div>
+          <div class="setting-desc">End of day posture report</div>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" checked>
+          <span class="toggle-track"></span>
+        </label>
+      </div>
+      <div class="settings-row">
+        <div>
+          <div class="setting-label">Badge Alerts</div>
+          <div class="setting-desc">When you unlock new badges</div>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" checked>
+          <span class="toggle-track"></span>
+        </label>
+      </div>
+      <div class="settings-row">
+        <div>
+          <div class="setting-label">Low Battery</div>
+          <div class="setting-desc">Alert when battery is below 15%</div>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" checked>
+          <span class="toggle-track"></span>
+        </label>
+      </div>
+      <div class="settings-row">
+        <div>
+          <div class="setting-label">Marketing</div>
+          <div class="setting-desc">Tips, updates, and offers</div>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox">
+          <span class="toggle-track"></span>
+        </label>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- Bottom Nav -->
+<nav class="bottom-nav" aria-label="Main navigation">
+  <a href="dashboard.html" class="nav-item" data-page="dashboard"><i class="ph ph-house"></i><span>Home</span></a>
+  <a href="live-posture.html" class="nav-item" data-page="live-posture"><i class="ph ph-activity"></i><span>Live</span></a>
+  <a href="journey.html" class="nav-item" data-page="journey"><i class="ph ph-trophy"></i><span>Journey</span></a>
+  <a href="analytics.html" class="nav-item" data-page="analytics"><i class="ph ph-chart-line-up"></i><span>Insights</span></a>
+  <a href="settings.html" class="nav-item" data-page="settings"><i class="ph ph-gear"></i><span>Settings</span></a>
+</nav>
+
+<!-- Side Nav -->
+<nav class="side-nav" aria-label="Main navigation">
+  <div class="nav-logo"><div class="logo-circle">K</div><span>KINE</span></div>
+  <a href="dashboard.html" class="nav-item" data-page="dashboard"><i class="ph ph-house"></i><span>Dashboard</span></a>
+  <a href="live-posture.html" class="nav-item" data-page="live-posture"><i class="ph ph-activity"></i><span>Live Posture</span></a>
+  <a href="journey.html" class="nav-item" data-page="journey"><i class="ph ph-trophy"></i><span>Journey</span></a>
+  <a href="analytics.html" class="nav-item" data-page="analytics"><i class="ph ph-chart-line-up"></i><span>Analytics</span></a>
+  <a href="timeline.html" class="nav-item" data-page="timeline"><i class="ph ph-clock-countdown"></i><span>Timeline</span></a>
+  <a href="missions.html" class="nav-item" data-page="missions"><i class="ph ph-target"></i><span>Missions</span></a>
+  <a href="leaderboard.html" class="nav-item" data-page="leaderboard"><i class="ph ph-ranking"></i><span>Leaderboard</span></a>
+  <div class="nav-spacer"></div>
+  <a href="settings.html" class="nav-item" data-page="settings"><i class="ph ph-gear"></i><span>Settings</span></a>
+</nav>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="auth.js"></script>
+  <script src="nav.js"></script>
+
+  <script>
+    (function() {
+      KINEAuth.requireAuth();
+    })();
+  </script>
+</body>
+</html>

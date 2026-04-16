@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="KINE — Your gamification journey, badges, and XP progress.">
+  <title>KINE — Journey</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<main id="app-container">
+  <section class="screen active" id="journey">
+    <h2 class="screen-title">Your Journey</h2>
+    <p class="screen-subtitle">Level up with great posture.</p>
+
+    <!-- Level Progress -->
+    <div class="level-bar-container">
+      <div class="level-info">
+        <span>Level 4 — Posture Warrior</span>
+        <span style="color:var(--accent-primary);">650 / 1000 XP</span>
+      </div>
+      <div class="level-bar">
+        <div class="level-fill" style="width:0%;"></div>
+      </div>
+    </div>
+
+    <!-- Badge Grid -->
+    <h3 class="heading-sm" style="margin-bottom:4px;">Badges</h3>
+    <p class="body-sm" style="color:var(--text-muted);margin-bottom:12px;">Tap a badge to learn more.</p>
+    <div class="badge-grid">
+      <div class="badge-grid-item">
+        <div class="badge-circle unlocked"><i class="ph ph-star"></i></div>
+        <span>First Steps</span>
+      </div>
+      <div class="badge-grid-item">
+        <div class="badge-circle unlocked"><i class="ph ph-flame"></i></div>
+        <span>3-Day Streak</span>
+      </div>
+      <div class="badge-grid-item">
+        <div class="badge-circle unlocked"><i class="ph ph-trophy"></i></div>
+        <span>Score 80+</span>
+      </div>
+      <div class="badge-grid-item">
+        <div class="badge-circle locked"><i class="ph ph-lightning"></i></div>
+        <span>Speed Fix</span>
+      </div>
+      <div class="badge-grid-item">
+        <div class="badge-circle locked"><i class="ph ph-crown"></i></div>
+        <span>Perfect Day</span>
+      </div>
+      <div class="badge-grid-item">
+        <div class="badge-circle locked"><i class="ph ph-medal"></i></div>
+        <span>7-Day Streak</span>
+      </div>
+      <div class="badge-grid-item">
+        <div class="badge-circle unlocked"><i class="ph ph-heart"></i></div>
+        <span>Self Care</span>
+      </div>
+      <div class="badge-grid-item">
+        <div class="badge-circle locked"><i class="ph ph-rocket"></i></div>
+        <span>Level 5</span>
+      </div>
+      <div class="badge-grid-item">
+        <div class="badge-circle locked"><i class="ph ph-diamond"></i></div>
+        <span>30-Day</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Badge Details Modal -->
+  <div id="badge-details" class="overlay">
+    <div class="overlay-content" style="text-align:center;">
+      <div class="badge-circle unlocked" style="margin:0 auto 16px;width:96px;height:96px;font-size:2.5rem;"><i class="ph ph-trophy"></i></div>
+      <h3 class="heading-md badge-detail-name">Badge Name</h3>
+      <p class="badge-detail-status" style="color:var(--text-muted);margin:8px 0 20px;">Unlocked! ✨</p>
+      <p style="color:var(--text-muted);font-size:0.9rem;">Achieve a posture score of 80 or higher in a single day.</p>
+      <button class="btn btn-primary btn-sm" data-close-overlay style="margin-top:20px;">Got It</button>
+    </div>
+  </div>
+
+  <!-- Badge Unlock Celebration -->
+  <div id="badge-unlock" class="overlay-screen">
+    <div class="unlock-confetti">
+      <div class="confetti-piece" style="left:10%;top:-10%;background:var(--accent-primary);animation-delay:0s;"></div>
+      <div class="confetti-piece" style="left:25%;top:-5%;background:var(--accent-secondary);animation-delay:0.2s;"></div>
+      <div class="confetti-piece" style="left:40%;top:-15%;background:var(--accent-tertiary);animation-delay:0.4s;"></div>
+      <div class="confetti-piece" style="left:55%;top:-8%;background:var(--success);animation-delay:0.1s;"></div>
+      <div class="confetti-piece" style="left:70%;top:-12%;background:var(--accent-primary-dim);animation-delay:0.3s;"></div>
+      <div class="confetti-piece" style="left:85%;top:-6%;background:var(--accent-primary);animation-delay:0.5s;"></div>
+    </div>
+    <div class="unlock-content">
+      <div class="unlock-badge" style="background:var(--accent-primary-glow); border: 2px solid var(--accent-primary); box-shadow: 0 0 32px var(--accent-primary-glow);"><i class="ph ph-trophy" style="color:var(--accent-primary);"></i></div>
+      <h2 class="heading-xl" style="color:var(--text-main);">Zenith Attained!</h2>
+      <p style="color:var(--text-muted);font-size:1rem;">You earned the <strong>Score 80+</strong> badge</p>
+      <button class="btn btn-primary btn-lg" data-close-overlay style="margin-top:12px;">Awesome!</button>
+    </div>
+  </div>
+</main>
+
+<!-- Bottom Nav -->
+<nav class="bottom-nav" aria-label="Main navigation">
+  <a href="dashboard.html" class="nav-item" data-page="dashboard"><i class="ph ph-house"></i><span>Home</span></a>
+  <a href="live-posture.html" class="nav-item" data-page="live-posture"><i class="ph ph-activity"></i><span>Live</span></a>
+  <a href="journey.html" class="nav-item" data-page="journey"><i class="ph ph-trophy"></i><span>Journey</span></a>
+  <a href="analytics.html" class="nav-item" data-page="analytics"><i class="ph ph-chart-line-up"></i><span>Insights</span></a>
+  <a href="settings.html" class="nav-item" data-page="settings"><i class="ph ph-gear"></i><span>Settings</span></a>
+</nav>
+
+<!-- Side Nav -->
+<nav class="side-nav" aria-label="Main navigation">
+  <div class="nav-logo"><div class="logo-circle">K</div><span>KINE</span></div>
+  <a href="dashboard.html" class="nav-item" data-page="dashboard"><i class="ph ph-house"></i><span>Dashboard</span></a>
+  <a href="live-posture.html" class="nav-item" data-page="live-posture"><i class="ph ph-activity"></i><span>Live Posture</span></a>
+  <a href="journey.html" class="nav-item" data-page="journey"><i class="ph ph-trophy"></i><span>Journey</span></a>
+  <a href="analytics.html" class="nav-item" data-page="analytics"><i class="ph ph-chart-line-up"></i><span>Analytics</span></a>
+  <a href="timeline.html" class="nav-item" data-page="timeline"><i class="ph ph-clock-countdown"></i><span>Timeline</span></a>
+  <a href="missions.html" class="nav-item" data-page="missions"><i class="ph ph-target"></i><span>Missions</span></a>
+  <a href="leaderboard.html" class="nav-item" data-page="leaderboard"><i class="ph ph-ranking"></i><span>Leaderboard</span></a>
+  <div class="nav-spacer"></div>
+  <a href="settings.html" class="nav-item" data-page="settings"><i class="ph ph-gear"></i><span>Settings</span></a>
+</nav>
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="auth.js"></script>
+  <script src="nav.js"></script>
+
+  <script>
+    (function() {
+      // Auth Guard
+      KINEAuth.requireAuth();
+
+      KINEAuth.onReady(user => {
+        if (!user) return;
+        
+        KINEdb.onLiveDevicePosture(deviceInfo => {
+          if (!deviceInfo) return;
+
+          // Compute an XP value based on currentScore (for gamification visualization)
+          const xpBase = 300;
+          const score = deviceInfo.currentScore || 0;
+          const currentXP = xpBase + (score * 5); // Example: 300 + (100 * 5) = 800 XP
+          const levelXpTarget = 1000;
+          const fillPercent = Math.min(100, Math.round((currentXP / levelXpTarget) * 100));
+
+          const levelInfoSpan = document.querySelector('.level-info span:last-child');
+          if (levelInfoSpan) {
+             levelInfoSpan.textContent = `${currentXP} / ${levelXpTarget} XP`;
+          }
+
+          const fill = document.querySelector('.level-fill');
+          if (fill) {
+            fill.style.width = fillPercent + '%';
+          }
+        });
+      });
+    })();
+  </script>
+</body>
+</html>

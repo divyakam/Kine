@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="KINE — Update your personal information.">
+  <title>KINE — Edit Profile</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<main id="app-container">
+  <section class="screen active" id="edit-profile">
+    <a href="settings.html" class="back-btn"><i class="ph ph-arrow-left"></i> Back</a>
+    <h2 class="screen-title">Edit Profile</h2>
+    <p class="screen-subtitle">Update your personal information.</p>
+
+    <div class="card" style="max-width:420px;">
+      <div style="display:flex;justify-content:center;margin-bottom:24px;">
+        <div class="avatar avatar-xl avatar-glow" style="cursor:pointer;position:relative;">
+          A
+        </div>
+      </div>
+      <div class="input-group">
+        <label for="edit-name">Full Name</label>
+        <input type="text" id="edit-name" class="input-field" value="Alex Johnson">
+      </div>
+      <div class="input-group">
+        <label for="edit-email">Email</label>
+        <input type="email" id="edit-email" class="input-field" value="alex@email.com">
+      </div>
+      <div class="input-group">
+        <label for="edit-age">Age</label>
+        <input type="number" id="edit-age" class="input-field" value="28">
+      </div>
+      <div class="input-group">
+        <label for="edit-height">Height (cm)</label>
+        <input type="number" id="edit-height" class="input-field" value="175">
+      </div>
+      <button class="btn btn-primary btn-block">Save Changes</button>
+    </div>
+  </section>
+</main>
+
+<!-- Bottom Nav -->
+<nav class="bottom-nav" aria-label="Main navigation">
+  <a href="dashboard.html" class="nav-item" data-page="dashboard"><i class="ph ph-house"></i><span>Home</span></a>
+  <a href="live-posture.html" class="nav-item" data-page="live-posture"><i class="ph ph-activity"></i><span>Live</span></a>
+  <a href="journey.html" class="nav-item" data-page="journey"><i class="ph ph-trophy"></i><span>Journey</span></a>
+  <a href="analytics.html" class="nav-item" data-page="analytics"><i class="ph ph-chart-line-up"></i><span>Insights</span></a>
+  <a href="settings.html" class="nav-item" data-page="settings"><i class="ph ph-gear"></i><span>Settings</span></a>
+</nav>
+
+<!-- Side Nav -->
+<nav class="side-nav" aria-label="Main navigation">
+  <div class="nav-logo"><div class="logo-circle">K</div><span>KINE</span></div>
+  <a href="dashboard.html" class="nav-item" data-page="dashboard"><i class="ph ph-house"></i><span>Dashboard</span></a>
+  <a href="live-posture.html" class="nav-item" data-page="live-posture"><i class="ph ph-activity"></i><span>Live Posture</span></a>
+  <a href="journey.html" class="nav-item" data-page="journey"><i class="ph ph-trophy"></i><span>Journey</span></a>
+  <a href="analytics.html" class="nav-item" data-page="analytics"><i class="ph ph-chart-line-up"></i><span>Analytics</span></a>
+  <a href="timeline.html" class="nav-item" data-page="timeline"><i class="ph ph-clock-countdown"></i><span>Timeline</span></a>
+  <a href="missions.html" class="nav-item" data-page="missions"><i class="ph ph-target"></i><span>Missions</span></a>
+  <a href="leaderboard.html" class="nav-item" data-page="leaderboard"><i class="ph ph-ranking"></i><span>Leaderboard</span></a>
+  <div class="nav-spacer"></div>
+  <a href="settings.html" class="nav-item" data-page="settings"><i class="ph ph-gear"></i><span>Settings</span></a>
+</nav>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="auth.js"></script>
+  <script src="db.js"></script>
+  <script src="nav.js"></script>
+
+  <script>
+    (function() {
+      // Auth Guard
+      KINEAuth.requireAuth();
+
+      KINEAuth.onReady(user => {
+        if (!user) return;
+
+        const nameInput = document.getElementById('edit-name');
+        const emailInput = document.getElementById('edit-email');
+        const ageInput = document.getElementById('edit-age');
+        const heightInput = document.getElementById('edit-height');
+        const saveBtn = document.querySelector('.btn-primary');
+
+        // Load profile
+        KINEdb.onProfile(user.uid, profile => {
+          if (!profile) return;
+          if (nameInput) nameInput.value = profile.name || '';
+          if (emailInput) emailInput.value = profile.email || '';
+          if (ageInput) ageInput.value = profile.age || '';
+          if (heightInput) heightInput.value = profile.height || '';
+          
+          const avatar = document.querySelector('.avatar');
+          if (avatar) avatar.textContent = (profile.name || 'U').charAt(0);
+        });
+
+        // Save profile
+        if (saveBtn) {
+          saveBtn.addEventListener('click', async () => {
+            saveBtn.classList.add('btn-loading');
+            saveBtn.disabled = true;
+
+            try {
+              await KINEdb.updateProfile(user.uid, {
+                name: nameInput.value,
+                email: emailInput.value,
+                age: parseInt(ageInput.value),
+                height: parseInt(heightInput.value)
+              });
+              KINEAuth.showToast('Profile updated!', 'success');
+            } catch (error) {
+              KINEAuth.showToast('Failed to update profile', 'error');
+            } finally {
+              saveBtn.classList.remove('btn-loading');
+              saveBtn.disabled = false;
+            }
+          });
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

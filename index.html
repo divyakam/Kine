@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="KINE — Smart IoT posture-correcting necklace.">
+  <title>KINE — Posture Intelligence</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet">
+  <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    /* Full splash screen styling */
+    .splash-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      /* Subtle gradient matching the KINE aesthetic */
+      background: radial-gradient(circle at 50% 40%, rgba(104, 207, 235, 0.15) 0%, rgba(21, 19, 28, 1) 100%), #15131C;
+      display: flex;
+      flex-direction: column;
+      padding: 48px 24px 32px;
+      justify-content: space-between;
+      color: white;
+      z-index: 100;
+      box-sizing: border-box;
+      overflow: hidden;
+    }
+
+    /* Top Logo */
+    .brand-logo-top {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: 'Manrope', sans-serif;
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+
+    .kine-circle {
+      width: 24px;
+      height: 24px;
+      background: var(--accent-primary);
+      color: var(--surface-bg);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: 800;
+    }
+
+    /* Bottom Content Area */
+    .splash-bottom-content {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      animation: fadeUpIn 0.8s ease-out forwards;
+      opacity: 0;
+      transform: translateY(20px);
+    }
+
+    @keyframes fadeUpIn {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .splash-welcome {
+      font-family: 'Inter', sans-serif;
+      font-weight: 400;
+      font-size: 1rem;
+      color: rgba(255, 255, 255, 0.6);
+      margin-bottom: -12px;
+    }
+
+    .splash-headline {
+      font-family: 'Manrope', sans-serif;
+      font-size: 2.8rem;
+      line-height: 1.1;
+      font-weight: 400;
+      letter-spacing: -0.02em;
+    }
+
+    .splash-headline strong {
+      font-weight: 700;
+      display: block;
+    }
+
+    /* Pagination Indicators */
+    .pagination-dots {
+      display: flex;
+      gap: 6px;
+      margin: 12px 0 24px;
+    }
+
+    .pag-dot {
+      width: 8px;
+      height: 2px;
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 2px;
+    }
+
+    .pag-dot.active {
+      width: 24px;
+      background: white;
+    }
+
+    /* Bottom Start Button */
+    .start-pill-btn {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: 100px;
+      padding: 6px 16px 6px 6px;
+      cursor: pointer;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      text-decoration: none;
+      color: white;
+      transition: all 0.3s ease;
+    }
+
+    .start-pill-btn:hover {
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    .pill-left-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .circle-btn {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.05);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: rgba(255, 255, 255, 0.4);
+      font-size: 1.2rem;
+    }
+
+    .circle-btn.primary {
+      background: white;
+      color: black;
+    }
+
+    .pill-text {
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      font-size: 1rem;
+      flex: 1;
+      text-align: center;
+      color: rgba(255, 255, 255, 0.8);
+      margin-right: 24px;
+      /* offset for chevron */
+    }
+
+    .pill-right {
+      color: rgba(255, 255, 255, 0.2);
+      font-size: 1.2rem;
+      display: flex;
+      padding-right: 8px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <main id="app-container">
+    <div class="splash-container">
+
+      <!-- Top Brand -->
+      <div class="brand-logo-top">
+        <div class="kine-circle">K</div>
+        <span>KINE</span>
+      </div>
+
+      <!-- Bottom Content -->
+      <div class="splash-bottom-content">
+        <p class="splash-welcome">Welcome to</p>
+        <h1 class="splash-headline">
+          Next-level<br>
+          <strong>Posture intelligence</strong>
+        </h1>
+
+        <!-- Pagination -->
+        <div class="pagination-dots">
+          <div class="pag-dot active"></div>
+          <div class="pag-dot"></div>
+          <div class="pag-dot"></div>
+          <div class="pag-dot"></div>
+        </div>
+
+        <!-- Action Button directly linking to intro/login -->
+        <a href="intro.html" class="start-pill-btn">
+          <div class="pill-left-actions">
+            <!-- Back arrow circle (subtle) -->
+            <div class="circle-btn">
+              <i class="ph ph-arrow-left"></i>
+            </div>
+            <!-- Primary next arrow circle -->
+            <div class="circle-btn primary">
+              <i class="ph ph-arrow-right"></i>
+            </div>
+          </div>
+
+          <span class="pill-text">Start</span>
+
+          <div class="pill-right">
+            <i class="ph ph-caret-right"></i>
+            <i class="ph ph-caret-right" style="margin-left:-8px;"></i>
+          </div>
+        </a>
+      </div>
+
+    </div>
+  </main>
+
+</body>
+
+</html>

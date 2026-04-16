@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="KINE — Recalibrate your posture baseline.">
+  <title>KINE — Recalibrate</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<main id="app-container">
+  <section class="screen active" id="recalibrate">
+    <a href="settings.html" class="back-btn"><i class="ph ph-arrow-left"></i> Back</a>
+    <h2 class="screen-title">Recalibrate</h2>
+    <p class="screen-subtitle">Reset your posture baseline.</p>
+    <div style="display:flex;flex-direction:column;align-items:center;text-align:center;gap:16px;padding-top:32px;">
+      <div class="calibration-visual">
+        <i class="ph ph-crosshair" style="font-size:2rem;color:var(--accent-secondary);z-index:1;"></i>
+      </div>
+      <div id="baseline-display" style="font-size:1.5rem;font-weight:600;">Baseline: --</div>
+      <p style="color:var(--text-muted);max-width:280px;margin-top:8px;">Sit in your ideal posture and tap the button below to reset your baseline.</p>
+      <button class="btn btn-primary btn-lg" id="set-baseline-btn"><i class="ph ph-arrows-clockwise"></i> Set Baseline</button>
+    </div>
+  </section>
+</main>
+
+<!-- Bottom Nav -->
+<nav class="bottom-nav" aria-label="Main navigation">
+  <a href="dashboard.html" class="nav-item" data-page="dashboard"><i class="ph ph-house"></i><span>Home</span></a>
+  <a href="live-posture.html" class="nav-item" data-page="live-posture"><i class="ph ph-activity"></i><span>Live</span></a>
+  <a href="journey.html" class="nav-item" data-page="journey"><i class="ph ph-trophy"></i><span>Journey</span></a>
+  <a href="analytics.html" class="nav-item" data-page="analytics"><i class="ph ph-chart-line-up"></i><span>Insights</span></a>
+  <a href="settings.html" class="nav-item" data-page="settings"><i class="ph ph-gear"></i><span>Settings</span></a>
+</nav>
+
+<!-- Side Nav -->
+<nav class="side-nav" aria-label="Main navigation">
+  <div class="nav-logo"><div class="logo-circle">K</div><span>KINE</span></div>
+  <a href="dashboard.html" class="nav-item" data-page="dashboard"><i class="ph ph-house"></i><span>Dashboard</span></a>
+  <a href="live-posture.html" class="nav-item" data-page="live-posture"><i class="ph ph-activity"></i><span>Live Posture</span></a>
+  <a href="journey.html" class="nav-item" data-page="journey"><i class="ph ph-trophy"></i><span>Journey</span></a>
+  <a href="analytics.html" class="nav-item" data-page="analytics"><i class="ph ph-chart-line-up"></i><span>Analytics</span></a>
+  <a href="timeline.html" class="nav-item" data-page="timeline"><i class="ph ph-clock-countdown"></i><span>Timeline</span></a>
+  <a href="missions.html" class="nav-item" data-page="missions"><i class="ph ph-target"></i><span>Missions</span></a>
+  <a href="leaderboard.html" class="nav-item" data-page="leaderboard"><i class="ph ph-ranking"></i><span>Leaderboard</span></a>
+  <div class="nav-spacer"></div>
+  <a href="settings.html" class="nav-item" data-page="settings"><i class="ph ph-gear"></i><span>Settings</span></a>
+</nav>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="auth.js"></script>
+  <script src="db.js"></script>
+  <script src="nav.js"></script>
+
+  <script>
+    (function() {
+      // Auth Guard
+      KINEAuth.requireAuth();
+
+      KINEAuth.onReady(user => {
+        if (!user) return;
+
+        const recalibBtn = document.getElementById('set-baseline-btn');
+        const subtitle = document.querySelector('.screen-subtitle');
+        const baselineDisplay = document.getElementById('baseline-display');
+        const db = window.KINE_FIREBASE ? window.KINE_FIREBASE.db : firebase.database();
+
+        // Load last calibration
+        KINEdb.onCalibration(user.uid, calib => {
+          if (calib && calib.lastCalibrated) {
+            const date = new Date(calib.lastCalibrated);
+            subtitle.innerHTML = `Last calibrated: <strong>${date.toLocaleString()}</strong>`;
+          }
+        });
+
+        if (baselineDisplay) {
+          db.ref('/device/baseline').on('value', (snapshot) => {
+            const val = snapshot.val();
+            baselineDisplay.innerText = `Baseline: ${val !== null ? val : '--'}`;
+          });
+        }
+
+        if (recalibBtn) {
+          recalibBtn.addEventListener('click', async () => {
+            recalibBtn.classList.add('btn-loading');
+            recalibBtn.disabled = true;
+
+            try {
+              await db.ref('/control/calibrate').set(true);
+              KINEAuth.showToast('Calibration command sent', 'success');
+              
+              // Also update user's last calibration record
+              await KINEdb.updateCalibration(user.uid, {
+                lastCalibrated: firebase.database.ServerValue.TIMESTAMP
+              });
+            } catch (error) {
+              console.error(error);
+              KINEAuth.showToast('Calibration failed', 'error');
+            } finally {
+              recalibBtn.classList.remove('btn-loading');
+              recalibBtn.disabled = false;
+            }
+          });
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

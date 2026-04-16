@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="KINE — Today's posture events timeline.">
+  <title>KINE — Daily Timeline</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet">
+  <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+  <main id="app-container">
+    <section class="screen active" id="daily-timeline">
+      <a href="analytics.html" class="back-btn"><i class="ph ph-arrow-left"></i> Back</a>
+      <h2 class="screen-title">Today's Timeline</h2>
+      <p class="screen-subtitle">Your posture events throughout the day.</p>
+      <div class="timeline">
+        <!-- Dynamic content injected by JS -->
+      </div>
+    </section>
+  </main>
+
+  <nav class="bottom-nav" aria-label="Main navigation">
+    <a href="dashboard.html" class="nav-item" data-page="dashboard"><i class="ph ph-house"></i><span>Home</span></a>
+    <a href="live-posture.html" class="nav-item" data-page="live-posture"><i
+        class="ph ph-activity"></i><span>Live</span></a>
+    <a href="journey.html" class="nav-item" data-page="journey"><i class="ph ph-trophy"></i><span>Journey</span></a>
+    <a href="analytics.html" class="nav-item" data-page="analytics"><i
+        class="ph ph-chart-line-up"></i><span>Insights</span></a>
+    <a href="settings.html" class="nav-item" data-page="settings"><i class="ph ph-gear"></i><span>Settings</span></a>
+  </nav>
+
+  <nav class="side-nav" aria-label="Main navigation">
+    <div class="nav-logo">
+      <div class="logo-circle">K</div><span>KINE</span>
+    </div>
+    <a href="dashboard.html" class="nav-item" data-page="dashboard"><i
+        class="ph ph-house"></i><span>Dashboard</span></a>
+    <a href="live-posture.html" class="nav-item" data-page="live-posture"><i class="ph ph-activity"></i><span>Live
+        Posture</span></a>
+    <a href="journey.html" class="nav-item" data-page="journey"><i class="ph ph-trophy"></i><span>Journey</span></a>
+    <a href="analytics.html" class="nav-item" data-page="analytics"><i
+        class="ph ph-chart-line-up"></i><span>Analytics</span></a>
+    <a href="timeline.html" class="nav-item active" data-page="timeline"><i
+        class="ph ph-clock-countdown"></i><span>Timeline</span></a>
+    <a href="missions.html" class="nav-item" data-page="missions"><i class="ph ph-target"></i><span>Missions</span></a>
+    <a href="leaderboard.html" class="nav-item" data-page="leaderboard"><i
+        class="ph ph-ranking"></i><span>Leaderboard</span></a>
+    <div class="nav-spacer"></div>
+    <a href="settings.html" class="nav-item" data-page="settings"><i class="ph ph-gear"></i><span>Settings</span></a>
+  </nav>
+
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="auth.js"></script>
+  <script src="nav.js"></script>
+  <script src="db.js"></script>
+  <script src="tracker.js"></script>
+
+  <script>
+    (function () {
+      KINEAuth.requireAuth();
+
+      KINEAuth.onReady(user => {
+        if (!user) return;
+
+        const timelineContainer = document.querySelector('.timeline');
+
+        KINEdb.onTimeline(user.uid, events => {
+          console.log('[Timeline] Data received:', events);
+          timelineContainer.innerHTML = '';
+
+          if (!events || events.length === 0) {
+            timelineContainer.innerHTML = '<p style="text-align:center;color:var(--text-muted);padding:40px;">No events logged yet.</p>';
+            return;
+          }
+
+          events.forEach(event => {
+            // Robust Regex Parser for "DD-MM-YYYY HH:mm:ss" or standard timestamps
+            let date = new Date(event.timestamp);
+
+            if (isNaN(date.getTime()) && typeof event.timestamp === 'string') {
+              const match = event.timestamp.match(/(\d{1,2})-(\d{1,2})-(\d{4})[,\s]+(\d{1,2}):(\d{1,2}):(\d{1,2})/);
+              if (match) {
+                const [_, d, m, y, hh, mm, ss] = match;
+                date = new Date(y, m - 1, d, hh, mm, ss);
+              } else {
+                const dateMatch = event.timestamp.match(/(\d{1,2})-(\d{1,2})-(\d{4})/);
+                if (dateMatch) {
+                  const [_, d, m, y] = dateMatch;
+                  date = new Date(y, m - 1, d);
+                }
+              }
+            }
+
+            // Formatting
+            const timeStr = isNaN(date.getTime()) ? '--:--' : date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+            const dateStr = isNaN(date.getTime()) ? '' : date.toLocaleDateString([], { day: '2-digit', month: 'short' });
+
+            const newItem = document.createElement('div');
+            const isAligned = event.type === 'Good' || event.type === 'Good posture';
+            newItem.className = isAligned ? 'timeline-item' : 'timeline-item bad';
+
+            const timeSpan = document.createElement('span');
+            timeSpan.className = 'tl-time';
+            timeSpan.textContent = dateStr ? `${dateStr}, ${timeStr}` : 'Unknown Time';
+
+            const textSpan = document.createElement('span');
+            textSpan.className = 'tl-text';
+            textSpan.textContent = `${event.type} (${(event.deviation || 0).toFixed(0)} dev)`;
+
+            newItem.appendChild(timeSpan);
+            newItem.appendChild(textSpan);
+            timelineContainer.appendChild(newItem);
+          });
+        });
+      });
+    })();
+  </script>
+</body>
+
+</html>

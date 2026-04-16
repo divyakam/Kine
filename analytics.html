@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="KINE — Posture analytics, trends, and breakdown charts.">
+  <title>KINE — Analytics</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<main id="app-container">
+  <section class="screen active" id="analytics">
+    <h2 class="screen-title">Analytics</h2>
+    <div class="analytics-header">
+      <p class="screen-subtitle" style="margin-bottom:0;">Your posture insights</p>
+      <div class="seg-toggle">
+        <button class="active">Day</button>
+        <button>Week</button>
+        <button>Month</button>
+      </div>
+    </div>
+
+    <!-- Area Chart -->
+    <div class="chart-placeholder">
+      <div class="chart-container" style="height:160px;">
+        <svg id="analytics-trend-svg" viewBox="0 0 400 160" preserveAspectRatio="none" style="width:100%;height:100%;">
+          <defs>
+            <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="var(--accent-primary)" stop-opacity="0.25"/>
+              <stop offset="100%" stop-color="var(--accent-primary)" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <path class="chart-area" d="" fill="url(#areaGrad)"/>
+          <path class="chart-line" d="" fill="none" stroke="var(--accent-primary)" stroke-width="2.5" stroke-linecap="round"/>
+          <g class="chart-points"></g>
+        </svg>
+      </div>
+      <div id="analytics-chart-labels" class="chart-labels-row" style="margin-top:8px;">
+        <!-- Labels injected by JS -->
+      </div>
+    </div>
+
+    <!-- Donut Chart -->
+    <div class="donut-container">
+      <svg viewBox="0 0 120 120">
+        <circle cx="60" cy="60" r="50" fill="none" stroke="var(--surface-highest)" stroke-width="16"/>
+        <circle cx="60" cy="60" r="50" fill="none" stroke="var(--accent-primary)" stroke-width="16"
+                stroke-dasharray="220 94" stroke-linecap="round" transform="rotate(-90 60 60)"/>
+        <circle cx="60" cy="60" r="50" fill="none" stroke="var(--accent-secondary)" stroke-width="16"
+                stroke-dasharray="60 254" stroke-dashoffset="-220" stroke-linecap="round" transform="rotate(-90 60 60)"/>
+      </svg>
+      <div class="donut-legend">
+        <div class="donut-legend-item">
+          <span class="dot" style="background:var(--accent-primary); box-shadow: 0 0 8px var(--accent-primary-glow);"></span>
+          <span>Zenith State — 70%</span>
+        </div>
+        <div class="donut-legend-item">
+          <span class="dot" style="background:var(--accent-secondary); box-shadow: 0 0 8px var(--accent-secondary-glow);"></span>
+          <span>Deviated — 19%</span>
+        </div>
+        <div class="donut-legend-item">
+          <span class="dot" style="background:var(--surface-highest);"></span>
+          <span>Inactive — 11%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Neck Health Analysis Section -->
+    <div class="card ai-insight-card" id="neck-analysis-section">
+      <div class="ai-header">
+        <i class="ph ph-stethoscope"></i>
+        <h3 class="heading-sm">Neck Health Analysis</h3>
+        <span class="ai-badge">AI Powered</span>
+      </div>
+      
+      <div class="neck-analysis-container">
+        <div class="neck-visual">
+          <i class="ph ph-spiral"></i>
+        </div>
+        
+        <div class="risk-meter-container">
+          <p class="risk-desc">Injury Risk Level</p>
+          <h4 class="risk-level-label" id="neck-risk-label">Calculating...</h4>
+          <div class="risk-meter">
+            <div class="risk-fill" id="neck-risk-fill" style="width: 0%; background: var(--accent-primary);"></div>
+          </div>
+          <p class="ai-suggestion" id="neck-suggestion">Analyzing neck position and posture history using logistic regression...</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- Bottom Nav -->
+<nav class="bottom-nav" aria-label="Main navigation">
+  <a href="dashboard.html" class="nav-item" data-page="dashboard"><i class="ph ph-house"></i><span>Home</span></a>
+  <a href="live-posture.html" class="nav-item" data-page="live-posture"><i class="ph ph-activity"></i><span>Live</span></a>
+  <a href="journey.html" class="nav-item" data-page="journey"><i class="ph ph-trophy"></i><span>Journey</span></a>
+  <a href="analytics.html" class="nav-item" data-page="analytics"><i class="ph ph-chart-line-up"></i><span>Insights</span></a>
+  <a href="settings.html" class="nav-item" data-page="settings"><i class="ph ph-gear"></i><span>Settings</span></a>
+</nav>
+
+<!-- Side Nav -->
+<nav class="side-nav" aria-label="Main navigation">
+  <div class="nav-logo"><div class="logo-circle">K</div><span>KINE</span></div>
+  <a href="dashboard.html" class="nav-item" data-page="dashboard"><i class="ph ph-house"></i><span>Dashboard</span></a>
+  <a href="live-posture.html" class="nav-item" data-page="live-posture"><i class="ph ph-activity"></i><span>Live Posture</span></a>
+  <a href="journey.html" class="nav-item" data-page="journey"><i class="ph ph-trophy"></i><span>Journey</span></a>
+  <a href="analytics.html" class="nav-item" data-page="analytics"><i class="ph ph-chart-line-up"></i><span>Analytics</span></a>
+  <a href="timeline.html" class="nav-item" data-page="timeline"><i class="ph ph-clock-countdown"></i><span>Timeline</span></a>
+  <a href="missions.html" class="nav-item" data-page="missions"><i class="ph ph-target"></i><span>Missions</span></a>
+  <a href="leaderboard.html" class="nav-item" data-page="leaderboard"><i class="ph ph-ranking"></i><span>Leaderboard</span></a>
+  <div class="nav-spacer"></div>
+  <a href="settings.html" class="nav-item" data-page="settings"><i class="ph ph-gear"></i><span>Settings</span></a>
+</nav>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="auth.js"></script>
+  <script src="nav.js"></script>
+  <script src="db.js"></script>
+  <script src="ai-logic.js"></script>
+  <script src="chart-engine.js"></script>
+
+  <script>
+    (function() {
+      KINEAuth.requireAuth();
+
+      // Chart Initialization
+      if (window.KINE_Charts) {
+        // Initial render (Daily)
+        KINE_Charts.renderTrendChart('analytics-trend-svg', window.USER_TREND_DAILY || [60, 65, 80, 75, 90, 85]);
+        KINE_Charts.renderLabels('analytics-chart-labels', window.USER_TREND_LABELS_DAY || ['8A', '10A', '12P', '2P', '4P', '6P']);
+
+        // Toggle logic
+        const toggleBtns = document.querySelectorAll('.seg-toggle button');
+        toggleBtns.forEach((btn, idx) => {
+          btn.addEventListener('click', () => {
+             toggleBtns.forEach(b => b.classList.remove('active'));
+             btn.classList.add('active');
+
+             if (idx === 0) { // Day
+               KINE_Charts.renderTrendChart('analytics-trend-svg', window.USER_TREND_DAILY);
+               KINE_Charts.renderLabels('analytics-chart-labels', window.USER_TREND_LABELS_DAY);
+             } else if (idx === 1) { // Week
+               KINE_Charts.renderTrendChart('analytics-trend-svg', window.USER_TREND_WEEKLY);
+               KINE_Charts.renderLabels('analytics-chart-labels', window.USER_TREND_LABELS_WEEK);
+             } else { // Month (Mocking month data)
+               const monthData = [70, 75, 68, 82, 90, 85, 88, 79, 72, 85, 92, 88];
+               const monthLabels = ['J','F','M','A','M','J','J','A','S','O','N','D'];
+               KINE_Charts.renderTrendChart('analytics-trend-svg', monthData);
+               KINE_Charts.renderLabels('analytics-chart-labels', monthLabels);
+             }
+          });
+        });
+      }
+
+      KINEAuth.onReady(user => {
+        if (!user) return;
+
+        // Fetch posture data to run AI analysis using LIVE device readings
+        KINEdb.onLiveDevicePosture(deviceInfo => {
+          if (!deviceInfo || !window.KINE_AI) return;
+
+          // Perform Neck Health Analysis using real device deviation
+          const analysis = KINE_AI.analyzeNeckHealth({
+            avgAngle: deviceInfo.deviation || 15,
+            durationHours: 1.5, // Mocked duration for now, could be derived from device time
+            corrections: deviceInfo.deviation > 10 ? 1 : 0
+          });
+
+          // Update UI
+          const riskLabel = document.getElementById('neck-risk-label');
+          const riskFill = document.getElementById('neck-risk-fill');
+          const suggestion = document.getElementById('neck-suggestion');
+
+          if (riskLabel) riskLabel.textContent = analysis.risk + ' Risk';
+          if (suggestion) suggestion.textContent = analysis.suggestion + ` (Live Deviation: ${(deviceInfo.deviation||0).toFixed(1)}°)`;
+          
+          if (riskFill) {
+            const prob = analysis.probability * 100;
+            riskFill.style.width = prob + '%';
+            
+            // Color coding
+            if (prob > 70) {
+              riskFill.style.background = 'var(--danger)';
+              riskFill.style.boxShadow = '0 0 12px rgba(255, 113, 108, 0.4)';
+            } else if (prob > 40) {
+              riskFill.style.background = 'var(--warning)';
+              riskFill.style.boxShadow = '0 0 12px rgba(245, 158, 11, 0.3)';
+            } else {
+              riskFill.style.background = 'var(--success)';
+              riskFill.style.boxShadow = '0 0 12px rgba(0, 227, 253, 0.3)';
+            }
+          }
+        });
+      });
+    })();
+  </script>
+</body>
+</html>

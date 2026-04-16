@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="KINE — Get started with your smart posture-correcting necklace.">
+  <title>KINE — Welcome</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<main id="app-container">
+  <section class="screen fullscreen active" id="intro-screens">
+    <div class="intro-carousel">
+      <div class="intro-visual"><i class="ph ph-spine"></i></div>
+      <h2 class="heading-lg">Your Posture, Perfected</h2>
+      <p class="body-lg" style="color:var(--text-muted);">KINE gently guides you to better alignment with real-time feedback and smart vibrations.</p>
+      <div class="intro-dots">
+        <span class="active"></span>
+        <span></span>
+        <span></span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px;width:100%;margin-top:16px;">
+        <button class="btn btn-primary btn-block" data-navigate="sign-up">Get Started</button>
+        <button class="btn btn-ghost" data-navigate="log-in">I already have an account</button>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script src="nav.js"></script>
+</body>
+</html>

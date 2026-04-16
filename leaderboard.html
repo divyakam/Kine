@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="KINE — See how you rank among other KINE users.">
+  <title>KINE — Leaderboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<main id="app-container">
+  <section class="screen active" id="leaderboard">
+    <a href="journey.html" class="back-btn"><i class="ph ph-arrow-left"></i> Back</a>
+    <h2 class="screen-title">Leaderboard</h2>
+    <p class="screen-subtitle">See how you rank among KINE users.</p>
+    <div class="leaderboard-list">
+      <div class="leaderboard-item">
+        <span class="rank gold">1</span>
+        <div class="avatar" style="background:linear-gradient(135deg,#FDE68A,#FCD34D);color:#92400E;">M</div>
+        <span class="lb-name">Maya</span>
+        <span class="lb-score">950</span>
+      </div>
+      <div class="leaderboard-item">
+        <span class="rank silver">2</span>
+        <div class="avatar" style="background:linear-gradient(135deg,#C4B5FD,#8B5CF6);color:#fff;">J</div>
+        <span class="lb-name">Jordan</span>
+        <span class="lb-score">880</span>
+      </div>
+      <div class="leaderboard-item" style="background:var(--accent-primary-light);border:2px solid var(--accent-primary);">
+        <span class="rank bronze">3</span>
+        <div class="avatar avatar-glow">A</div>
+        <span class="lb-name">Alex (You)</span>
+        <span class="lb-score">780</span>
+      </div>
+      <div class="leaderboard-item">
+        <span class="rank">4</span>
+        <div class="avatar" style="background:linear-gradient(135deg,#FCA5A5,#EF4444);color:#fff;">T</div>
+        <span class="lb-name">Taylor</span>
+        <span class="lb-score">720</span>
+      </div>
+      <div class="leaderboard-item">
+        <span class="rank">5</span>
+        <div class="avatar" style="background:linear-gradient(135deg,#6EE7B7,#10B981);color:#fff;">R</div>
+        <span class="lb-name">Riley</span>
+        <span class="lb-score">690</span>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- Bottom Nav -->
+<nav class="bottom-nav" aria-label="Main navigation">
+  <a href="dashboard.html" class="nav-item" data-page="dashboard"><i class="ph ph-house"></i><span>Home</span></a>
+  <a href="live-posture.html" class="nav-item" data-page="live-posture"><i class="ph ph-activity"></i><span>Live</span></a>
+  <a href="journey.html" class="nav-item" data-page="journey"><i class="ph ph-trophy"></i><span>Journey</span></a>
+  <a href="analytics.html" class="nav-item" data-page="analytics"><i class="ph ph-chart-line-up"></i><span>Insights</span></a>
+  <a href="settings.html" class="nav-item" data-page="settings"><i class="ph ph-gear"></i><span>Settings</span></a>
+</nav>
+
+<!-- Side Nav -->
+<nav class="side-nav" aria-label="Main navigation">
+  <div class="nav-logo"><div class="logo-circle">K</div><span>KINE</span></div>
+  <a href="dashboard.html" class="nav-item" data-page="dashboard"><i class="ph ph-house"></i><span>Dashboard</span></a>
+  <a href="live-posture.html" class="nav-item" data-page="live-posture"><i class="ph ph-activity"></i><span>Live Posture</span></a>
+  <a href="journey.html" class="nav-item" data-page="journey"><i class="ph ph-trophy"></i><span>Journey</span></a>
+  <a href="analytics.html" class="nav-item" data-page="analytics"><i class="ph ph-chart-line-up"></i><span>Analytics</span></a>
+  <a href="timeline.html" class="nav-item" data-page="timeline"><i class="ph ph-clock-countdown"></i><span>Timeline</span></a>
+  <a href="missions.html" class="nav-item" data-page="missions"><i class="ph ph-target"></i><span>Missions</span></a>
+  <a href="leaderboard.html" class="nav-item" data-page="leaderboard"><i class="ph ph-ranking"></i><span>Leaderboard</span></a>
+  <div class="nav-spacer"></div>
+  <a href="settings.html" class="nav-item" data-page="settings"><i class="ph ph-gear"></i><span>Settings</span></a>
+</nav>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="auth.js"></script>
+  <script src="nav.js"></script>
+
+  <script src="db.js"></script>
+
+  <script>
+    (function() {
+      KINEAuth.requireAuth();
+
+      KINEAuth.onReady(user => {
+        if (!user) return;
+
+        // Fetch display name
+        KINEdb.onProfile(user.uid, profile => {
+          if (profile && profile.name) {
+            const myNameSpan = document.querySelector('.leaderboard-item[style*="var(--accent-primary-light)"] .lb-name');
+            const myAvatar = document.querySelector('.leaderboard-item[style*="var(--accent-primary-light)"] .avatar');
+            if (myNameSpan) myNameSpan.textContent = profile.name + ' (You)';
+            if (myAvatar) myAvatar.textContent = profile.name.charAt(0).toUpperCase();
+          }
+        });
+
+        // Use live device posture to update leaderboard score
+        KINEdb.onLiveDevicePosture(deviceInfo => {
+          if (!deviceInfo) return;
+          
+          const myScoreSpan = document.querySelector('.leaderboard-item[style*="var(--accent-primary-light)"] .lb-score');
+          if (myScoreSpan) {
+             const basePoints = 700; 
+             const liveScore = basePoints + Math.round((deviceInfo.currentScore || 0) * 1.5);
+             myScoreSpan.textContent = liveScore;
+          }
+        });
+      });
+    })();
+  </script>
+</body>
+</html>
