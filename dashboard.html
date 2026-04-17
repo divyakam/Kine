@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,102 +8,129 @@
   <title>KINE — Dashboard</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet">
   <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
   <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
 
-<main id="app-container">
-  <section class="screen active" id="home-dashboard">
-    <header class="dash-header">
-      <div class="dash-header-left">
-        <div class="avatar">U</div>
-        <div class="greeting">
-          <span>Welcome back,</span>
-          <span>User</span>
+  <main id="app-container">
+    <div id="kine-toast-container" class="toast-container"></div>
+    <section class="screen active" id="home-dashboard">
+      <header class="dash-header">
+        <div class="dash-header-left">
+          <div class="avatar">U</div>
+          <div class="greeting">
+            <span>Welcome back,</span>
+            <span>User</span>
+          </div>
+        </div>
+        <div class="dash-header-right">
+          <button class="icon-btn" title="Battery"><i class="ph ph-battery-high"></i></button>
+        </div>
+      </header>
+
+      <div class="dash-hero card-glow" style="margin-bottom:24px;">
+        <span class="hero-title">Zenith Score</span>
+        <div class="progress-ring">
+          <svg viewBox="0 0 100 100" width="180" height="180">
+            <circle class="ring-bg" cx="50" cy="50" r="45" stroke-width="6" />
+            <circle class="ring-fill" id="dashboard-zenith-ring" cx="50" cy="50" r="45" stroke-width="6"
+              stroke-dasharray="283" stroke-dashoffset="28.3" />
+          </svg>
+          <div class="ring-label">
+            <span class="ring-value" id="dashboard-zenith-value">90</span>
+            <span class="ring-caption" id="dashboard-zenith-status">Optimal</span>
+          </div>
         </div>
       </div>
-      <div class="dash-header-right">
-        <button class="icon-btn" title="Battery"><i class="ph ph-battery-high"></i></button>
-      </div>
-    </header>
 
-    <div class="dash-hero">
-      <span class="hero-title">Zenith Score</span>
-      <div class="progress-ring">
-        <svg viewBox="0 0 100 100" width="200" height="200">
-          <circle class="ring-bg" cx="50" cy="50" r="45" stroke-width="8" />
-          <circle class="ring-fill" cx="50" cy="50" r="45" stroke-width="8" stroke-dasharray="283" stroke-dashoffset="28.3" />
-        </svg>
-        <div class="ring-label">
-          <span class="ring-value">90</span>
-          <span class="ring-caption">Optimal</span>
+      <div class="dash-stats grid-three" style="margin-bottom:24px;">
+        <div class="stat-card">
+          <div class="stat-icon"><i class="ph ph-bell-ringing"></i></div>
+          <span class="stat-value" id="stat-corrections">0</span>
+          <span class="stat-label">Corrections</span>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon"><i class="ph ph-fire"></i></div>
+          <span class="stat-value" id="stat-streak">0</span>
+          <span class="stat-label">Streak</span>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon"><i class="ph ph-hourglass-high"></i></div>
+          <span class="stat-value" id="stat-wear-time">0h</span>
+          <span class="stat-label">Wear Time</span>
         </div>
       </div>
-    </div>
 
-    <div class="dash-stats">
-      <div class="stat-card">
-        <div class="stat-icon"><i class="ph ph-bell-ringing"></i></div>
-        <span class="stat-value">--</span>
-        <span class="stat-label">Corrections</span>
-      </div>
-      <div class="stat-card">
-        <div class="stat-icon"><i class="ph ph-fire"></i></div>
-        <span class="stat-value">--</span>
-        <span class="stat-label">Streak</span>
-      </div>
-      <div class="stat-card">
-        <div class="stat-icon"><i class="ph ph-hourglass-high"></i></div>
-        <span class="stat-value">--</span>
-        <span class="stat-label">Wear Time</span>
-      </div>
-    </div>
-
-    <div class="dash-chart-card">
-      <div class="chart-header">
-        <h4>Posture Trend</h4>
-        <div class="seg-toggle">
-          <button class="active">Today</button>
-          <button>Week</button>
+      <!-- Optimized Chart Card -->
+      <div class="card dash-chart-card">
+        <div class="chart-header" style="margin-bottom:16px;">
+          <h3 class="heading-sm">Posture Trend</h3>
+          <div class="seg-toggle">
+            <button class="active">Today</button>
+          </div>
+        </div>
+        <div class="chart-container" style="height:140px;">
+          <svg id="dashboard-trend-svg" viewBox="0 0 400 160" preserveAspectRatio="none"
+            style="width:100%;height:100%;">
+            <defs>
+              <linearGradient id="dashAreaGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="var(--accent-primary)" stop-opacity="0.3" />
+                <stop offset="100%" stop-color="var(--accent-primary)" stop-opacity="0" />
+              </linearGradient>
+            </defs>
+            <path class="chart-area" d="" fill="url(#dashAreaGrad)" />
+            <path class="chart-line" d="" fill="none" stroke="var(--accent-primary)" stroke-width="3"
+              stroke-linecap="round" />
+            <g class="chart-points"></g>
+          </svg>
         </div>
       </div>
-      <div class="mini-chart-svg">
-         <svg id="dashboard-trend-svg" width="100%" height="100%"></svg>
+
+      <div id="ai-insight-section" class="ai-insight-card">
+        <div class="ai-header">
+          <i class="ph ph-sparkle"></i>
+          <span class="ai-badge">AI Powered</span>
+        </div>
+        <p class="ai-suggestion">Keep up the good work! You are maintaining 85% optimal posture today.</p>
       </div>
+    </section>
+  </main>
+
+  <nav class="bottom-nav" aria-label="Main navigation">
+    <a href="dashboard.html" class="nav-item active" data-page="dashboard"><i
+        class="ph ph-house"></i><span>Home</span></a>
+    <a href="live-posture.html" class="nav-item" data-page="live-posture"><i
+        class="ph ph-activity"></i><span>Live</span></a>
+    <a href="journey.html" class="nav-item" data-page="journey"><i class="ph ph-trophy"></i><span>Journey</span></a>
+    <a href="analytics.html" class="nav-item" data-page="analytics"><i
+        class="ph ph-chart-line-up"></i><span>Insights</span></a>
+    <a href="settings.html" class="nav-item" data-page="settings"><i class="ph ph-gear"></i><span>Settings</span></a>
+  </nav>
+
+  <nav class="side-nav" aria-label="Main navigation">
+    <div class="nav-logo">
+      <div class="logo-circle">K</div><span>KINE</span>
     </div>
-
-    <div id="ai-insight-section" class="ai-insight-card">
-      <div class="ai-header">
-        <i class="ph ph-sparkle"></i>
-        <span class="ai-badge">AI Powered</span>
-      </div>
-      <p class="ai-suggestion">Keep up the good work! You are maintaining 85% optimal posture today.</p>
-    </div>
-  </section>
-</main>
-
-<nav class="bottom-nav" aria-label="Main navigation">
-  <a href="dashboard.html" class="nav-item active" data-page="dashboard"><i class="ph ph-house"></i><span>Home</span></a>
-  <a href="live-posture.html" class="nav-item" data-page="live-posture"><i class="ph ph-activity"></i><span>Live</span></a>
-  <a href="journey.html" class="nav-item" data-page="journey"><i class="ph ph-trophy"></i><span>Journey</span></a>
-  <a href="analytics.html" class="nav-item" data-page="analytics"><i class="ph ph-chart-line-up"></i><span>Insights</span></a>
-  <a href="settings.html" class="nav-item" data-page="settings"><i class="ph ph-gear"></i><span>Settings</span></a>
-</nav>
-
-<nav class="side-nav" aria-label="Main navigation">
-  <div class="nav-logo"><div class="logo-circle">K</div><span>KINE</span></div>
-  <a href="dashboard.html" class="nav-item active" data-page="dashboard"><i class="ph ph-house"></i><span>Dashboard</span></a>
-  <a href="live-posture.html" class="nav-item" data-page="live-posture"><i class="ph ph-activity"></i><span>Live Posture</span></a>
-  <a href="journey.html" class="nav-item" data-page="journey"><i class="ph ph-trophy"></i><span>Journey</span></a>
-  <a href="analytics.html" class="nav-item" data-page="analytics"><i class="ph ph-chart-line-up"></i><span>Analytics</span></a>
-  <a href="timeline.html" class="nav-item" data-page="timeline"><i class="ph ph-clock-countdown"></i><span>Timeline</span></a>
-  <a href="missions.html" class="nav-item" data-page="missions"><i class="ph ph-target"></i><span>Missions</span></a>
-  <a href="leaderboard.html" class="nav-item" data-page="leaderboard"><i class="ph ph-ranking"></i><span>Leaderboard</span></a>
-  <div class="nav-spacer"></div>
-  <a href="settings.html" class="nav-item" data-page="settings"><i class="ph ph-gear"></i><span>Settings</span></a>
-</nav>
+    <a href="dashboard.html" class="nav-item active" data-page="dashboard"><i
+        class="ph ph-house"></i><span>Dashboard</span></a>
+    <a href="live-posture.html" class="nav-item" data-page="live-posture"><i class="ph ph-activity"></i><span>Live
+        Posture</span></a>
+    <a href="journey.html" class="nav-item" data-page="journey"><i class="ph ph-trophy"></i><span>Journey</span></a>
+    <a href="analytics.html" class="nav-item" data-page="analytics"><i
+        class="ph ph-chart-line-up"></i><span>Analytics</span></a>
+    <a href="timeline.html" class="nav-item" data-page="timeline"><i
+        class="ph ph-clock-countdown"></i><span>Timeline</span></a>
+    <a href="missions.html" class="nav-item" data-page="missions"><i class="ph ph-target"></i><span>Missions</span></a>
+    <a href="leaderboard.html" class="nav-item" data-page="leaderboard"><i
+        class="ph ph-ranking"></i><span>Leaderboard</span></a>
+    <div class="nav-spacer"></div>
+    <a href="settings.html" class="nav-item" data-page="settings"><i class="ph ph-gear"></i><span>Settings</span></a>
+  </nav>
 
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -117,7 +145,7 @@
   <script src="ai-logic.js"></script>
 
   <script>
-    (function() {
+    (function () {
       KINEAuth.requireAuth();
 
       KINEAuth.onReady(user => {
@@ -134,46 +162,76 @@
         });
 
         // 2a. Real-time Device Posture Data
+        let lastKnownBaseline = null;
         KINEdb.onLiveDevicePosture(deviceInfo => {
-          console.log('[Dashboard] deviceInfo received:', deviceInfo);
           if (!deviceInfo) return;
 
-          const ring = document.querySelector('.ring-fill');
-          const valueEl = document.querySelector('.ring-value');
-          if (ring && valueEl) {
-            const radius = ring.getAttribute('r');
-            const circumference = 2 * Math.PI * radius;
-            const score = deviceInfo.currentScore || 0;
-            const offset = circumference - (score / 100) * circumference;
-            ring.style.strokeDasharray = circumference;
-            ring.style.strokeDashoffset = offset;
-            valueEl.textContent = score;
+          // Check for Calibration Success
+          if (lastKnownBaseline !== null && deviceInfo.baseline !== lastKnownBaseline) {
+            showKineToast("Posture Base Set Successfully!");
           }
+          lastKnownBaseline = deviceInfo.baseline;
 
-          // Trend Graph (Live Updates)
-          firebase.database().ref(`users/${user.uid}/posture/history`).once('value', snap => {
-            let historyData = snap.val();
-            if (!historyData) {
-              historyData = [70, 75, 78, 85, 82, 88, deviceInfo.currentScore || 90];
-            } else {
-              historyData[historyData.length - 1] = deviceInfo.currentScore || 0;
-            }
-            firebase.database().ref(`users/${user.uid}/posture/history`).set(historyData);
-            
-            if (window.KINE_Charts && document.getElementById('dashboard-trend-svg')) {
-               KINE_Charts.renderTrendChart('dashboard-trend-svg', historyData);
-            }
-          });
+          const statusEl = document.getElementById('dashboard-zenith-status');
+          if (statusEl) {
+            const score = deviceInfo.currentScore || 0;
+            if (score > 85) statusEl.textContent = 'Optimal';
+            else if (score > 60) statusEl.textContent = 'Fair';
+            else statusEl.textContent = 'Action Needed';
+          }
         });
 
-        // 2b. Aggregate Posture Data (Stats & AI)
+        // 2b. Daily Average Zenith Score Listener (Rolling Daily Trend)
+        KINEdb.onDailyStats(user.uid, avg => {
+          console.log('[Dashboard] Received Daily Average:', avg);
+          const ring = document.getElementById('dashboard-zenith-ring');
+          const valueEl = document.getElementById('dashboard-zenith-value');
+          if (ring && valueEl) {
+            const circumference = 2 * Math.PI * 45;
+            const offset = circumference - (avg / 100) * circumference;
+            ring.style.strokeDashoffset = offset;
+            valueEl.textContent = avg;
+          }
+        });
+
+        // 2c. Reactive History Trend Listener (Recent 75s Window)
+        KINEdb.onHistory(user.uid, historyData => {
+          const svg = document.getElementById('dashboard-trend-svg');
+          if (!svg) return;
+
+          if (historyData && window.KINE_Charts) {
+            KINE_Charts.renderTrendChart('dashboard-trend-svg', historyData);
+            if (window.KINE_Charts.renderLabels) {
+              KINE_Charts.renderLabels('dashboard-chart-labels', ['-1m', '-40s', '-20s', 'Now']);
+            }
+          } else {
+            // If history is wiped, show a flat line until first reading arrives
+            KINE_Charts.renderTrendChart('dashboard-trend-svg', [0, 0]);
+          }
+        });
+
+        // Helper: Toast Notifications
+        function showKineToast(message) {
+          const container = document.getElementById('kine-toast-container');
+          if (!container) return;
+          const toast = document.createElement('div');
+          toast.className = 'toast';
+          toast.innerHTML = `<i class="ph-bold ph-check-circle" style="color:var(--accent-primary)"></i> ${message}`;
+          container.appendChild(toast);
+          setTimeout(() => toast.remove(), 3500);
+        }
+
+        // 2c. Aggregate Posture Data (Stats & AI)
         KINEdb.onPosture(user.uid, posture => {
           if (!posture) return;
 
-          const statValues = document.querySelectorAll('.stat-value');
-          if (statValues[0]) statValues[0].textContent = posture.corrections || 0;
-          if (statValues[1]) statValues[1].textContent = posture.streak || 0;
-          if (statValues[2]) statValues[2].textContent = (posture.wearTime || 0).toFixed(1) + 'h';
+          const correctionsEl = document.getElementById('stat-corrections');
+          const streakEl = document.getElementById('stat-streak');
+          const wearTimeEl = document.getElementById('stat-wear-time');
+
+          if (correctionsEl) correctionsEl.textContent = posture.corrections || 0;
+          if (streakEl) streakEl.textContent = posture.streak || 0;
+          if (wearTimeEl) wearTimeEl.textContent = (posture.wearTime || 0).toFixed(1) + 'h';
 
           if (window.KINE_AI) {
             const insights = KINE_AI.getSlouchInsights();
@@ -185,16 +243,17 @@
         // 3. Device Data (Battery)
         KINEdb.onDevice(user.uid, device => {
           if (device && device.battery !== undefined) {
-             const batteryIcon = document.querySelector('.dash-header-right i');
-             if (batteryIcon) {
-                if (device.battery < 20) batteryIcon.className = 'ph ph-battery-low';
-                else if (device.battery < 50) batteryIcon.className = 'ph ph-battery-medium';
-                else batteryIcon.className = 'ph ph-battery-high';
-             }
+            const batteryIcon = document.querySelector('.dash-header-right i');
+            if (batteryIcon) {
+              if (device.battery < 20) batteryIcon.className = 'ph ph-battery-low';
+              else if (device.battery < 50) batteryIcon.className = 'ph ph-battery-medium';
+              else batteryIcon.className = 'ph ph-battery-high';
+            }
           }
         });
       });
     })();
   </script>
 </body>
+
 </html>

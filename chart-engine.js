@@ -16,26 +16,30 @@ const KINE_Charts = (() => {
   function getPathData(data, width, height) {
     if (!data || data.length < 2) return "";
 
-    const padding = 10;
-    const effectiveHeight = height - padding * 2;
-    const xStep = width / (data.length - 1);
+    const paddingY = 20;
+    const paddingX = 12; // Horizontal padding for edge breathing room
+    const effectiveHeight = height - paddingY * 2;
+    const effectiveWidth = width - paddingX * 2;
+    const xStep = effectiveWidth / (data.length - 1);
 
     const points = data.map((d, i) => ({
-      x: i * xStep,
-      y: height - (padding + (d / 100) * effectiveHeight)
+      x: paddingX + i * xStep,
+      y: height - (paddingY + (d / 100) * effectiveHeight)
     }));
 
+    // Start path
     let path = `M ${points[0].x},${points[0].y}`;
 
+    // Quadratic curve approach for smoother "liquid" look
     for (let i = 0; i < points.length - 1; i++) {
         const p0 = points[i];
         const p1 = points[i+1];
-        const cp1x = p0.x + (p1.x - p0.x) / 2;
-        const cp1y = p0.y;
-        const cp2x = p0.x + (p1.x - p0.x) / 2;
-        const cp2y = p1.y;
+        
+        // Control points for smoother transition
+        const cp1x = p0.x + (p1.x - p0.x) / 2.5;
+        const cp2x = p1.x - (p1.x - p0.x) / 2.5;
 
-        path += ` C ${cp1x},${cp1y} ${cp2x},${cp2y} ${p1.x},${p1.y}`;
+        path += ` C ${cp1x},${p0.y} ${cp2x},${p1.y} ${p1.x},${p1.y}`;
     }
 
     return path;
@@ -50,41 +54,86 @@ const KINE_Charts = (() => {
     const svg = document.getElementById(svgId);
     if (!svg) return;
 
-    const viewBox = svg.getAttribute('viewBox').split(' ');
-    const width = parseFloat(viewBox[2]);
-    const height = parseFloat(viewBox[3]);
+    // Use viewBox dimensions
+    const vb = svg.getAttribute('viewBox') || "0 0 400 160";
+    const [,, width, height] = vb.split(' ').map(parseFloat);
+
+    // --- Visual Axes and Grid ---
+    let gridGroup = svg.querySelector('.chart-grid-lines');
+    if (!gridGroup) {
+      gridGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+      gridGroup.setAttribute('class', 'chart-grid-lines');
+      svg.insertBefore(gridGroup, svg.firstChild);
+    }
+    gridGroup.innerHTML = '';
+
+    const levels = [0, 50, 100];
+    const paddingY = 20;
+    const paddingX = 12;
+    const effectiveHeight = height - paddingY * 2;
+    const effectiveWidth = width - paddingX * 2;
+
+    levels.forEach(level => {
+      const gy = height - (paddingY + (level / 100) * effectiveHeight);
+      const gline = document.createElementNS("http://www.w3.org/2000/svg", "line");
+      gline.setAttribute('x1', paddingX);
+      gline.setAttribute('y1', gy);
+      gline.setAttribute('x2', width - paddingX);
+      gline.setAttribute('y2', gy);
+      gline.setAttribute('stroke', 'var(--glass-border)');
+      gline.setAttribute('stroke-opacity', '0.5');
+      gline.setAttribute('stroke-width', '1');
+      if (level > 0 && level < 100) {
+        gline.setAttribute('stroke-dasharray', '4 4');
+      }
+      gridGroup.appendChild(gline);
+    });
+
+    // Vertical Axis Line
+    const vy = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    vy.setAttribute('x1', paddingX); vy.setAttribute('y1', paddingY);
+    vy.setAttribute('x2', paddingX); vy.setAttribute('y2', height - paddingY);
+    vy.setAttribute('stroke', 'var(--glass-border)');
+    vy.setAttribute('stroke-width', '1.5');
+    gridGroup.appendChild(vy);
+
+    // Horizontal Axis Line
+    const hx = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    hx.setAttribute('x1', paddingX); hx.setAttribute('y1', height - paddingY);
+    hx.setAttribute('x2', width - paddingX); hx.setAttribute('y2', height - paddingY);
+    hx.setAttribute('stroke', 'var(--glass-border)');
+    hx.setAttribute('stroke-width', '1.5');
+    gridGroup.appendChild(hx);
 
     const pathData = getPathData(data, width, height);
 
-    // Update line path
+    // Update data lines...
     const linePath = svg.querySelector('.chart-line');
-    if (linePath) linePath.setAttribute('d', pathData);
+    if (linePath) {
+      linePath.setAttribute('d', pathData);
+    }
 
-    // Update area path (closed shape)
     const areaPath = svg.querySelector('.chart-area');
     if (areaPath) {
-      const closedPath = `${pathData} L ${width},${height} L 0,${height} Z`;
+      const closedPath = `${pathData} L ${width - paddingX},${height - paddingY} L ${paddingX},${height - paddingY} Z`;
       areaPath.setAttribute('d', closedPath);
     }
 
-    // Update circles (points)
     const pointsGroup = svg.querySelector('.chart-points');
     if (pointsGroup) {
       pointsGroup.innerHTML = '';
-      const xStep = width / (data.length - 1);
-      const padding = 10;
-      const effectiveHeight = height - padding * 2;
-
-      data.forEach((val, i) => {
-        const cx = i * xStep;
-        const cy = height - (padding + (val / 100) * effectiveHeight);
-        const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-        circle.setAttribute('cx', cx);
-        circle.setAttribute('cy', cy);
-        circle.setAttribute('r', '4');
-        circle.setAttribute('fill', 'var(--chart-point)');
-        pointsGroup.appendChild(circle);
-      });
+      const xStep = effectiveWidth / (data.length - 1);
+      const lastVal = data[data.length - 1];
+      const cx = paddingX + (data.length - 1) * xStep;
+      const cy = height - (paddingY + (lastVal / 100) * effectiveHeight);
+      
+      const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+      circle.setAttribute('cx', cx);
+      circle.setAttribute('cy', cy);
+      circle.setAttribute('r', '4');
+      circle.setAttribute('fill', 'var(--accent-primary)');
+      circle.style.filter = 'drop-shadow(0 0 8px var(--accent-primary-dim))';
+      pointsGroup.appendChild(circle);
     }
   }
 
@@ -97,12 +146,31 @@ const KINE_Charts = (() => {
     const container = document.getElementById(containerId);
     if (!container) return;
 
-    container.innerHTML = labels.map(l => `<span class="chart-label">${l}</span>`).join('');
+    // Distribute labels and ensure they are legible
+    container.innerHTML = labels.map(l => {
+       // Optional: Shorten labels if they are too long (e.g., Afternoon -> Aft..)
+       // const displayLabel = l.length > 8 ? l.substring(0, 3) + '.' : l;
+       return `<span class="chart-label">${l}</span>`;
+    }).join('');
+  }
+
+  /**
+   * Renders Y-Axis markers into a container
+   * @param {string} containerId - ID of the container element
+   * @param {Array} markers - Values to display (top to bottom)
+   */
+  function renderYAxis(containerId, markers = ['100', '50', '0']) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    
+    container.className = 'y-axis-labels';
+    container.innerHTML = markers.map(m => `<span>${m}</span>`).join('');
   }
 
   return {
     renderTrendChart,
-    renderLabels
+    renderLabels,
+    renderYAxis
   };
 })();
 
