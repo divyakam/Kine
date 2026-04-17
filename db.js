@@ -7,6 +7,8 @@ const KINEdb = (() => {
 
   const db = firebase.database();
 
+  // --- USER DATA ---
+
   function onProfile(uid, callback) {
     const ref = db.ref(`users/${uid}/profile`);
     ref.on('value', snapshot => {
@@ -49,32 +51,32 @@ const KINEdb = (() => {
     return () => ref.off();
   }
 
-  // GLOBAL DEVICE TRACKING (Matches ESP32 path /device/...)
-  function onDevice(uid, callback) {
-    const ref = db.ref('/device');
+  // --- HARDWARE CALIBRATION ---
+
+  function onCalibration(uid, callback) {
+    const ref = db.ref(`users/${uid}/posture/calibration`);
     ref.on('value', snapshot => {
       callback(snapshot.val());
     });
     return () => ref.off();
   }
 
-  function onCalibration(uid, callback) {
-    const ref = db.ref('/device/baseline'); // Aligned with ESP32 path
-    ref.on('value', snapshot => {
-      callback({ baseline: snapshot.val() });
-    });
-    return () => ref.off();
-  }
-
   async function updateCalibration(uid, data) {
     try {
-      // Trigger hardware calibration via global control path
+      // 1. Save local record of calibration (timestamp)
+      if (uid && data) {
+        await db.ref(`users/${uid}/posture/calibration`).update(data);
+      }
+      // 2. Trigger hardware calibration via global control path
       await db.ref('/control').update({ calibrate: true });
+      console.log('[KINEdb] Hardware calibration command sent.');
     } catch (error) {
       console.error('Calibration update failed:', error);
       throw error;
     }
   }
+
+  // --- LIVE DEVICE POSTURE ---
 
   function onLiveDevicePosture(callback) {
     const angleRef = db.ref('/device/angle');
@@ -87,8 +89,8 @@ const KINEdb = (() => {
     
     const notify = () => {
       const deviation = Math.abs(currentAngle - currentBaseline);
-      const isAligned = deviation <= 2000; // Updated to match ESP32 threshold
-      const score = Math.max(0, Math.round(100 - (deviation / 200)));
+      const isAligned = deviation <= 1000; 
+      const score = Math.max(0, Math.min(100, Math.round(100 - (deviation / 100)))); 
       
       const payload = {
         angle: currentAngle,
@@ -99,7 +101,6 @@ const KINEdb = (() => {
         lastUpdate: lastUpdate
       };
 
-      console.log('[KINEdb] Notify Payload:', payload);
       callback(payload);
     };
 
@@ -125,22 +126,21 @@ const KINEdb = (() => {
     };
   }
 
+  // --- LOGGING & ANALYTICS ---
+
   async function addTimelineEvent(uid, type, deviation) {
     try {
-      // Pushing to GLOBAL path to match ESP32 logs
       await db.ref('/posture/logs').push({
-        status: type, // ESP32 uses 'status'
+        status: type, 
         deviation: deviation || 0,
-        timestamp: new Date().toLocaleString('en-GB').replace(/\//g, '-') // Match ESP32 string format dd-mm-yyyy hh:mm:ss
+        timestamp: new Date().toLocaleString('en-GB').replace(/\//g, '-') 
       });
-      console.log('[KINEdb] Global log pushed:', type);
     } catch (error) {
       console.error('Timeline log failed:', error);
     }
   }
 
   function onTimeline(uid, callback) {
-    // Listen to GLOBAL path /posture/logs
     const ref = db.ref('/posture/logs');
     ref.on('value', snapshot => {
       const data = snapshot.val();
@@ -148,18 +148,118 @@ const KINEdb = (() => {
       if (data) {
         Object.keys(data).forEach(key => {
           const item = data[key];
-          // Backward compatibility with ESP32 field names
           list.push({ 
             id: key, 
-            type: item.status || item.type || 'Log', 
+            type: item.status || 'Log', 
             deviation: item.deviation || 0,
             timestamp: item.timestamp 
           });
         });
-        // Try to sort by ID or timestamp string if numeric is missing
         list.reverse();
       }
       callback(list);
+    });
+    return () => ref.off();
+  }
+
+  async function incrementCorrections(uid) {
+    if (!uid) return;
+    try {
+      await db.ref(`users/${uid}/posture`).update({
+        corrections: firebase.database.ServerValue.increment(1),
+        lastUpdate: firebase.database.ServerValue.TIMESTAMP
+      });
+    } catch (error) {
+      console.error('Increment corrections failed:', error);
+    }
+  }
+
+  async function updatePostureScore(uid, score) {
+    if (!uid) return;
+    try {
+      await db.ref(`users/${uid}/posture`).update({
+        currentScore: score,
+        lastUpdate: firebase.database.ServerValue.TIMESTAMP
+      });
+    } catch (error) {
+      console.error('Score update failed:', error);
+    }
+  }
+
+  // --- ROLLING HISTORY (75s Trend) ---
+
+  function onHistory(uid, callback) {
+    const ref = db.ref(`users/${uid}/posture/history`);
+    ref.on('value', snapshot => {
+      callback(snapshot.val());
+    });
+    return () => ref.off();
+  }
+
+  async function updateLiveHistory(uid, score, appendNewPoint = false) {
+    if (!uid) return;
+    try {
+      const ref = db.ref(`users/${uid}/posture/history`);
+      const snapshot = await ref.once('value');
+      let history = snapshot.val();
+      
+      if (!history || !Array.isArray(history)) {
+        history = [score, score];
+      }
+
+      if (appendNewPoint) {
+        history.push(score);
+        if (history.length > 15) history.shift(); 
+      } else {
+        history[history.length - 1] = score;
+      }
+      
+      await ref.set(history);
+    } catch (error) {
+      console.error('Update history failed:', error);
+    }
+  }
+
+  // --- DAILY PERSISTENT STATS ---
+
+  async function updateDailyStats(uid, score) {
+    const ref = db.ref(`users/${uid}/posture/summary`);
+    const today = new Date().toLocaleDateString('en-CA'); 
+
+    try {
+      const snapshot = await ref.once('value');
+      let data = snapshot.val() || { totalScore: 0, sampleCount: 0, date: today };
+
+      if (data.date !== today) {
+        data = { totalScore: score, sampleCount: 1, date: today };
+      } else {
+        data.totalScore = (parseFloat(data.totalScore) || 0) + score;
+        data.sampleCount = (parseInt(data.sampleCount) || 0) + 1;
+      }
+
+      // Cleanup: Explicitly null out removed fields to wipe them from the database
+      data.streak = null;
+      data.wearMinutes = null;
+      data.lastActiveDate = null;
+
+      await ref.update(data);
+    } catch (error) {
+      console.error('[KINEdb] updateDailyStats failed:', error);
+    }
+  }
+
+  function onDailyStats(uid, callback) {
+    const ref = db.ref(`users/${uid}/posture/summary`);
+    ref.on('value', snap => {
+      const data = snap.val();
+      if (data && data.sampleCount > 0) {
+        const total = parseFloat(data.totalScore) || 0;
+        const count = parseInt(data.sampleCount) || 1;
+        const avg = Math.max(0, Math.min(100, Math.round(total / count)));
+        callback(avg);
+      } else {
+        callback(0);
+      }
     });
     return () => ref.off();
   }
@@ -170,12 +270,17 @@ const KINEdb = (() => {
     onSettings,
     updateSettings,
     onPosture,
-    onDevice,
     onCalibration,
     updateCalibration,
     onLiveDevicePosture,
     addTimelineEvent,
-    onTimeline
+    onTimeline,
+    incrementCorrections,
+    updatePostureScore,
+    onHistory,
+    updateLiveHistory,
+    onDailyStats,
+    updateDailyStats
   };
 })();
 
