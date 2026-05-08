@@ -2830,3 +2830,60 @@ img {
   height: 8px;
   border-radius: var(--radius-circle);
 }
+
+/* ---------- Splash Loading Screen (Global) ---------- */
+#splash-loader {
+  position: fixed;
+  inset: 0;
+  background: var(--bg-primary);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  transition: opacity 1s linear;
+}
+
+.loader-content {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 48px;
+}
+
+.logo-anim-container {
+  position: relative;
+  width: 280px;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.kine-svg-logo {
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.kine-svg-logo .st1,
+.kine-svg-logo .st0 {
+  opacity: 0;
+}
+
+.loader-tagline {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8rem;
+  letter-spacing: 0.5em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  display: flex;
+  gap: 0.3em;
+  margin-top: 10px;
+}
+
+.loader-tagline span {
+  opacity: 0;
+  display: inline-block;
+}

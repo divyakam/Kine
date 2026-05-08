@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,36 +8,287 @@
   <title>KINE — Sign Up</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet">
   <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
   <link rel="stylesheet" href="styles.css">
+  <script src="splash.js" defer></script>
+  <style>
+    body {
+      background: var(--bg-primary);
+      overflow: hidden;
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .bg-glows {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    .glow-orb {
+      position: absolute;
+      width: 600px;
+      height: 600px;
+      border-radius: 50%;
+      filter: blur(120px);
+      opacity: 0.12;
+    }
+
+    .glow-1 {
+      top: -10%;
+      left: -10%;
+      background: var(--accent-primary);
+    }
+
+    .glow-2 {
+      bottom: -10%;
+      right: -10%;
+      background: var(--accent-secondary);
+    }
+
+    .grid-overlay {
+      position: fixed;
+      inset: 0;
+      background-image: linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+      background-size: 80px 80px;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .auth-container {
+      width: 100%;
+      max-width: 500px; /* Matched to intro.html */
+      padding: 24px;
+      opacity: 0;
+      transform: translateY(20px);
+    }
+
+    .auth-card {
+      background: rgba(255, 255, 255, 0.03); /* Matched to intro.html */
+      backdrop-filter: blur(20px); /* Matched to intro.html */
+      border: 1px solid rgba(255, 255, 255, 0.08); /* Matched to intro.html */
+      border-radius: 40px; /* Matched to intro.html */
+      padding: 48px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.3); /* Matched to intro.html */
+      position: relative;
+      overflow: hidden;
+    }
+
+    .auth-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--accent-primary), transparent);
+      opacity: 0.3;
+    }
+
+    .auth-header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .auth-logo {
+      font-family: 'Manrope', sans-serif;
+      font-weight: 800;
+      font-size: 1.5rem;
+      letter-spacing: -0.02em;
+      color: var(--accent-primary);
+      margin-bottom: 24px;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .auth-title {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+
+    .auth-subtitle {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      margin-left: 4px;
+    }
+
+    .input-wrapper {
+      position: relative;
+    }
+
+    .input-wrapper i {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--on-surface-variant);
+      font-size: 1.2rem;
+    }
+
+    .auth-input {
+      width: 100%;
+      background: var(--surface-container);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-md);
+      padding: 14px 16px 14px 48px;
+      color: #fff;
+      font-family: inherit;
+      font-size: 1rem;
+      transition: var(--transition-smooth);
+    }
+
+    .auth-input:focus {
+      outline: none;
+      border-color: var(--accent-primary);
+      background: var(--surface-high);
+      box-shadow: 0 0 0 4px rgba(129, 236, 255, 0.05);
+    }
+
+    .auth-btn {
+      width: 100%;
+      background: var(--accent-primary);
+      color: var(--bg-primary);
+      border: none;
+      border-radius: var(--radius-md);
+      padding: 16px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: var(--transition-tactile);
+      margin-top: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .auth-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(129, 236, 255, 0.25);
+      filter: brightness(1.1);
+    }
+
+    .auth-btn:active {
+      transform: translateY(0);
+    }
+
+    .auth-footer {
+      text-align: center;
+      margin-top: 32px;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    .auth-footer a {
+      color: var(--accent-primary);
+      text-decoration: none;
+      font-weight: 600;
+      transition: var(--transition-fast);
+    }
+
+    .auth-footer a:hover {
+      text-decoration: underline;
+    }
+
+    .btn-loading {
+      position: relative;
+      color: transparent !important;
+      pointer-events: none;
+    }
+
+    .btn-loading::after {
+      content: '';
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      border: 2px solid var(--bg-primary);
+      border-top-color: transparent;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
 </head>
+
 <body>
 
-<main id="app-container">
-  <section class="screen active" id="sign-up">
-    <div class="auth-card glass">
-      <h2 class="heading-lg">Create Account</h2>
-      <p class="auth-subtitle">Start your posture journey today.</p>
+  <div class="bg-glows">
+    <div class="glow-orb glow-1"></div>
+    <div class="glow-orb glow-2"></div>
+  </div>
+  <div class="grid-overlay"></div>
+
+  <main class="auth-container" id="auth-entry">
+    <div class="auth-card">
+      <div class="auth-header">
+        <div class="auth-logo">
+          <img src="logo.svg" alt="KINE Logo" style="height: 40px; width: auto;">
+        </div>
+        <h1 class="auth-title">Create Account</h1>
+        <p class="auth-subtitle">Start your posture intelligence journey</p>
+      </div>
+
       <form id="signup-form">
-        <div class="input-group">
+        <div class="form-group">
           <label for="signup-name">Full Name</label>
-          <input type="text" id="signup-name" class="input-field" placeholder="Alex Johnson" required>
+          <div class="input-wrapper">
+            <i class="ph ph-user"></i>
+            <input type="text" id="signup-name" class="auth-input" placeholder="Alex Johnson" required>
+          </div>
         </div>
-        <div class="input-group">
-          <label for="signup-email">Email</label>
-          <input type="email" id="signup-email" class="input-field" placeholder="alex@email.com" required>
+        <div class="form-group">
+          <label for="signup-email">Email Address</label>
+          <div class="input-wrapper">
+            <i class="ph ph-envelope"></i>
+            <input type="email" id="signup-email" class="auth-input" placeholder="alex@email.com" required>
+          </div>
         </div>
-        <div class="input-group">
+        <div class="form-group">
           <label for="signup-password">Password</label>
-          <input type="password" id="signup-password" class="input-field" placeholder="••••••••" required minlength="6">
+          <div class="input-wrapper">
+            <i class="ph ph-lock-key"></i>
+            <input type="password" id="signup-password" class="auth-input" placeholder="••••••••" required
+              minlength="6">
+          </div>
         </div>
-        <button type="submit" id="signup-btn" class="btn btn-primary btn-block btn-lg">Sign Up</button>
+        <button type="submit" id="signup-btn" class="auth-btn">
+          <span>Create Account</span>
+          <i class="ph ph-arrow-right"></i>
+        </button>
       </form>
-      <p class="auth-footer">Already have an account? <a href="login.html">Log In</a></p>
+
+      <div class="auth-footer">
+        Already have an account? <a href="login.html">Sign In</a>
+      </div>
     </div>
-  </section>
-</main>
+  </main>
 
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -44,10 +296,40 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
   <script src="firebase-config.js"></script>
   <script src="auth.js"></script>
-  <script src="nav.js"></script>
 
   <script>
-    document.getElementById('signup-form').addEventListener('submit', async function(e) {
+    window.onload = () => {
+      if (window.KINESplash && window.KINESplash.finished) {
+        startAuthAnimations();
+      } else {
+        window.addEventListener('KINESplashFinished', () => {
+          startAuthAnimations();
+        });
+      }
+    };
+
+    function startAuthAnimations() {
+      // Entrance Animation
+      anime({
+        targets: '#auth-entry',
+        opacity: [0, 1],
+        translateY: [20, 0],
+        duration: 1000,
+        easing: 'easeOutExpo'
+      });
+
+      anime({
+        targets: '.glow-orb',
+        scale: [0.8, 1.2],
+        opacity: [0.08, 0.15],
+        duration: 8000,
+        direction: 'alternate',
+        loop: true,
+        easing: 'easeInOutSine'
+      });
+    }
+
+    document.getElementById('signup-form').addEventListener('submit', async function (e) {
       e.preventDefault();
       const name = document.getElementById('signup-name').value;
       const email = document.getElementById('signup-email').value;
@@ -62,6 +344,7 @@
         window.location.href = 'setup.html';
       } catch (error) {
         console.error(error);
+        alert(error.message || "Failed to create account.");
       } finally {
         btn.classList.remove('btn-loading');
         btn.disabled = false;
@@ -69,4 +352,5 @@
     });
   </script>
 </body>
+
 </html>
