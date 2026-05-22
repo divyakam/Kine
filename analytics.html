@@ -4,8 +4,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="KINE — Posture analytics, trends, and breakdown charts.">
-  <title>KINE — Analytics</title>
+  <meta name="description" content="KINE — Tactical Analytics HUD.">
+  <title>KINE — Analytics HUD</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
@@ -15,107 +15,149 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
   <link rel="stylesheet" href="styles.css">
   <script src="splash.js" defer></script>
+  <style>
+    /* Analytics Specific Visuals */
+    .dashboard-container {
+      width: 100%;
+      max-width: var(--max-content-width);
+      margin: 0 auto;
+      padding-bottom: 120px;
+    }
+
+    .analytics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+
+    .chart-box {
+      min-height: 320px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Gauge Components */
+    .gauge-wrapper {
+      position: relative;
+      width: 200px;
+      height: 100px; /* Semi-circle */
+      overflow: hidden;
+      margin: 0 auto;
+    }
+    .gauge-bg {
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      border: 12px solid rgba(255,255,255,0.05);
+      clip-path: inset(0 0 50% 0);
+    }
+    .gauge-fill {
+      position: absolute;
+      top: 0; left: 0;
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      border: 12px solid var(--accent-primary);
+      clip-path: inset(0 0 50% 0);
+      transform: rotate(-180deg);
+      transition: transform 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+      filter: drop-shadow(0 0 10px var(--accent-primary-glow));
+    }
+    .gauge-label {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Tension Bars */
+    .tension-row {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 24px;
+    }
+    .tension-bar-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      opacity: 0.6;
+      letter-spacing: 0.1em;
+    }
+    .tension-bar-track {
+      height: 4px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 100px;
+      overflow: hidden;
+    }
+    .tension-bar-fill {
+      height: 100%;
+      background: var(--accent-primary);
+      width: 0%;
+      transition: width 1s ease;
+    }
+
+    @media (min-width: 768px) {
+      .dashboard-container {
+        padding: 40px 0px;
+      }
+    }
+
+    @media (max-width: 767px) {
+      .analytics-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .analytics-grid .glass-card[style*="grid-column: span 2"] {
+        grid-column: span 1;
+        flex-direction: column;
+        gap: 24px;
+        padding: 24px;
+      }
+
+      .gauge-wrapper {
+        width: 160px;
+        height: 80px;
+      }
+
+      .gauge-bg, .gauge-fill {
+        width: 160px;
+        height: 160px;
+      }
+
+      .gauge-label span:first-child {
+        font-size: 1.5rem !important;
+      }
+
+      .stat-mini {
+        text-align: center;
+      }
+
+      .hud-header {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 12px;
+      }
+
+      .chart-box {
+        min-height: 240px;
+        padding: 24px !important;
+      }
+    }
+  </style>
 </head>
 
 <body>
 
-  <main id="app-container">
-    <section class="screen active" id="analytics">
-      <h2 class="screen-title">Analytics</h2>
-      <div class="analytics-header">
-        <p class="screen-subtitle">Your posture insights</p>
-      </div>
+  <div class="bg-glows">
+    <div class="glow-orb glow-1"></div>
+    <div class="glow-orb glow-2"></div>
+  </div>
+  <div class="grid-overlay"></div>
 
-      <!-- Area Chart -->
-      <div class="chart-placeholder">
-        <div class="chart-container" style="height:160px;">
-          <svg id="analytics-trend-svg" viewBox="0 0 400 160" preserveAspectRatio="none"
-            style="width:100%;height:100%;">
-            <defs>
-              <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="var(--accent-primary)" stop-opacity="0.25" />
-                <stop offset="100%" stop-color="var(--accent-primary)" stop-opacity="0" />
-              </linearGradient>
-            </defs>
-            <path class="chart-area" d="" fill="url(#areaGrad)" />
-            <path class="chart-line" d="" fill="none" stroke="var(--accent-primary)" stroke-width="2.5"
-              stroke-linecap="round" />
-            <g class="chart-points"></g>
-          </svg>
-        </div>
-      </div>
-
-      <!-- Live Breakdown Donut Chart -->
-      <div class="card donut-card">
-        <h3 class="heading-sm" style="margin-bottom:16px;">Daily Breakdown</h3>
-        <div class="donut-container">
-          <svg viewBox="0 0 120 120" id="analytics-donut-svg">
-            <circle cx="60" cy="60" r="50" fill="none" stroke="var(--surface-highest)" stroke-width="12" />
-            <circle id="donut-fill-zenith" cx="60" cy="60" r="50" fill="none" stroke="var(--accent-primary)"
-              stroke-width="12" stroke-dasharray="0 314" stroke-linecap="round" transform="rotate(-90 60 60)"
-              style="transition: stroke-dasharray 1s ease;" />
-            <circle id="donut-fill-deviated" cx="60" cy="60" r="50" fill="none" stroke="var(--accent-secondary)"
-              stroke-width="12" stroke-dasharray="0 314" stroke-dashoffset="0" stroke-linecap="round"
-              transform="rotate(-90 60 60)" style="transition: stroke-dasharray 1s ease, stroke-dashoffset 1s ease;" />
-          </svg>
-          <div class="donut-legend">
-            <div class="donut-legend-item">
-              <span class="dot"
-                style="background:var(--accent-primary); box-shadow: 0 0 8px var(--accent-primary-glow);"></span>
-              <span>Zenith State — <b id="stat-zenith-perc">0%</b></span>
-            </div>
-            <div class="donut-legend-item">
-              <span class="dot"
-                style="background:var(--accent-secondary); box-shadow: 0 0 8px var(--accent-secondary-glow);"></span>
-              <span>Deviated — <b id="stat-deviated-perc">0%</b></span>
-            </div>
-            <div class="donut-legend-item">
-              <span class="dot" style="background:var(--surface-highest);"></span>
-              <span>Inactive — <b id="stat-inactive-perc">100%</b></span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Neck Health Analysis Section -->
-      <div class="card ai-insight-card" id="neck-analysis-section">
-        <div class="ai-header">
-          <i class="ph ph-stethoscope"></i>
-          <h3 class="heading-sm">Neck Health Analysis</h3>
-          <span class="ai-badge">AI Powered</span>
-        </div>
-
-        <div class="neck-analysis-container">
-          <div class="neck-visual">
-            <i class="ph ph-spiral"></i>
-          </div>
-
-          <div class="risk-meter-container">
-            <p class="risk-desc">Injury Risk Level</p>
-            <h4 class="risk-level-label" id="neck-risk-label">Calculating...</h4>
-            <div class="risk-meter">
-              <div class="risk-fill" id="neck-risk-fill" style="width: 0%; background: var(--accent-primary);"></div>
-            </div>
-            <p class="ai-suggestion" id="neck-suggestion">Analyzing neck position and posture history using logistic
-              regression...</p>
-          </div>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <!-- Bottom Nav -->
-  <nav class="bottom-nav" aria-label="Main navigation">
-    <a href="dashboard.html" class="nav-item" data-page="dashboard"><i class="ph ph-house"></i><span>Home</span></a>
-    <a href="live-posture.html" class="nav-item" data-page="live-posture"><i
-        class="ph ph-activity"></i><span>Live</span></a>
-    <a href="journey.html" class="nav-item" data-page="journey"><i class="ph ph-trophy"></i><span>Journey</span></a>
-    <a href="analytics.html" class="nav-item" data-page="analytics"><i
-        class="ph ph-chart-line-up"></i><span>Insights</span></a>
-    <a href="settings.html" class="nav-item" data-page="settings"><i class="ph ph-gear"></i><span>Settings</span></a>
-  </nav>
-
-  <!-- Side Nav -->
   <nav class="side-nav" aria-label="Main navigation">
     <div class="nav-logo">
       <div class="logo-circle">K</div><span>KINE</span>
@@ -125,7 +167,7 @@
     <a href="live-posture.html" class="nav-item" data-page="live-posture"><i class="ph ph-activity"></i><span>Live
         Posture</span></a>
     <a href="journey.html" class="nav-item" data-page="journey"><i class="ph ph-trophy"></i><span>Journey</span></a>
-    <a href="analytics.html" class="nav-item" data-page="analytics"><i
+    <a href="analytics.html" class="nav-item active" data-page="analytics"><i
         class="ph ph-chart-line-up"></i><span>Analytics</span></a>
     <a href="timeline.html" class="nav-item" data-page="timeline"><i
         class="ph ph-clock-countdown"></i><span>Timeline</span></a>
@@ -136,14 +178,131 @@
     <a href="settings.html" class="nav-item" data-page="settings"><i class="ph ph-gear"></i><span>Settings</span></a>
   </nav>
 
-  <!-- Firebase SDKs -->
+  <main id="app-container">
+    <section class="screen active" id="analytics-hud">
+      <div class="dashboard-container">
+        
+        <header class="hud-header" style="margin-bottom: 40px; display: flex; justify-content: space-between; align-items: flex-end;">
+          <div>
+            <span class="caption" style="color: var(--accent-primary); letter-spacing: 0.3em;">STRATEGIC HUD</span>
+            <h1 class="heading-lg" style="margin-top: 4px;">Tactical Analytics</h1>
+          </div>
+          <div class="glass-card" style="padding: 10px 20px; border-radius: 12px; display: flex; align-items: center; gap: 10px; border-color: rgba(129, 236, 255, 0.3);">
+            <i class="ph ph-scan" style="color: var(--accent-primary); font-size: 1.2rem;"></i>
+            <span style="font-size: 0.75rem; font-weight: 800; opacity: 0.9;">SYSTEM NOMINAL</span>
+          </div>
+        </header>
+
+        <!-- Primary Stats Grid -->
+        <div class="analytics-grid">
+          <!-- Main Gauge Card -->
+          <div class="glass-card anim-stagger" style="grid-column: span 2; display: flex; flex-direction: row; align-items: center; gap: 40px; padding: 40px;">
+            <div class="gauge-container">
+              <div class="gauge-wrapper">
+                <div class="gauge-bg"></div>
+                <div class="gauge-fill" id="health-gauge"></div>
+                <div class="gauge-label">
+                  <span style="font-size: 2rem; font-weight: 800; font-family: 'Manrope';" id="val-health-perc">0%</span>
+                  <span class="caption" style="font-size: 0.6rem;">ZENITH INDEX</span>
+                </div>
+              </div>
+            </div>
+            <div style="flex: 1;">
+              <h3 class="heading-sm" style="margin-bottom: 8px;">Postural Integrity</h3>
+              <p class="caption" style="line-height: 1.5; margin-bottom: 20px;">Your alignment is currently exceeding the 7-day average baseline. Performance remains in the optimal bracket.</p>
+              <div style="display: flex; gap: 24px;">
+                <div class="stat-mini">
+                  <span class="caption" style="font-size: 0.55rem;">PEAK</span>
+                  <div style="font-weight: 800;" id="val-peak-dev">--°</div>
+                </div>
+                <div class="stat-mini">
+                  <span class="caption" style="font-size: 0.55rem;">AVG ANGLE</span>
+                  <div style="font-weight: 800;">14.2°</div>
+                </div>
+                <div class="stat-mini">
+                  <span class="caption" style="font-size: 0.55rem;">RISK</span>
+                  <div style="font-weight: 800; color: var(--success);" id="val-risk-level">LOW</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tension Breakdown Card -->
+        <div class="glass-card anim-stagger" style="padding: 32px; margin-bottom: 32px;">
+          <span class="caption" style="color: var(--accent-primary);">Time in Tension</span>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 32px;">
+            <div class="tension-row">
+              <div class="tension-bar-label"><span>Zenith Range (< 15°)</span> <span id="tension-zenith-val">72%</span></div>
+              <div class="tension-bar-track"><div class="tension-bar-fill" id="tension-zenith-fill" style="width: 72%;"></div></div>
+            </div>
+            <div class="tension-row">
+              <div class="tension-bar-label"><span>Deviated (15° - 30°)</span> <span id="tension-dev-val">18%</span></div>
+              <div class="tension-bar-track"><div class="tension-bar-fill" id="tension-dev-fill" style="width: 18%; background: var(--warning);"></div></div>
+            </div>
+            <div class="tension-row">
+              <div class="tension-bar-label"><span>High Stress (> 30°)</span> <span id="tension-stress-val">10%</span></div>
+              <div class="tension-bar-track"><div class="tension-bar-fill" id="tension-stress-fill" style="width: 10%; background: var(--danger);"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Trend Chart Section -->
+        <div class="glass-card chart-box anim-stagger" style="margin-bottom: 32px; padding: 40px;">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 40px;">
+            <div>
+              <h3 class="heading-md">Postural Evolution</h3>
+              <p class="caption">Tracking your Zenith Index across active sessions</p>
+            </div>
+            <div class="glass-card" style="padding: 6px 12px; border-radius: 8px; font-size: 0.7rem; font-weight: 800; background: rgba(129,236,255,0.05);">
+              WEEKLY TREND
+            </div>
+          </div>
+          <div style="height: 240px; width: 100%;">
+            <svg id="analytics-trend-svg" viewBox="0 0 400 160" preserveAspectRatio="none" style="width:100%; height:100%;"></svg>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-top: 16px; padding: 0 16px;">
+            <span class="caption" style="font-size: 0.6rem;">MON</span>
+            <span class="caption" style="font-size: 0.6rem;">TUE</span>
+            <span class="caption" style="font-size: 0.6rem;">WED</span>
+            <span class="caption" style="font-size: 0.6rem;">THU</span>
+            <span class="caption" style="font-size: 0.6rem;">FRI</span>
+            <span class="caption" style="font-size: 0.6rem;">SAT</span>
+            <span class="caption" style="font-size: 0.6rem;">SUN</span>
+          </div>
+        </div>
+
+        <!-- AI Insight Panel -->
+        <div class="glass-card ai-insight-card anim-stagger" style="border-left: 4px solid var(--accent-primary); padding: 32px;">
+          <div class="ai-header" style="margin-bottom: 16px;">
+            <i class="ph ph-sparkle"></i>
+            <span class="ai-badge">AI Diagnostic Report</span>
+          </div>
+          <p class="ai-suggestion" id="ai-insight" style="font-size: 1.1rem; line-height: 1.6; color: #fff;">Synthesizing postural telemetry. Detecting consistent improvement in lumbar stability during late-day sessions.</p>
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+  <nav class="bottom-nav" aria-label="Main navigation">
+    <a href="dashboard.html" class="nav-item" data-page="dashboard"><i class="ph ph-house"></i><span>Home</span></a>
+    <a href="live-posture.html" class="nav-item" data-page="live-posture"><i
+        class="ph ph-activity"></i><span>Live</span></a>
+    <a href="journey.html" class="nav-item" data-page="journey"><i class="ph ph-trophy"></i><span>Journey</span></a>
+    <a href="analytics.html" class="nav-item active" data-page="analytics"><i
+        class="ph ph-chart-line-up"></i><span>Insights</span></a>
+    <a href="settings.html" class="nav-item" data-page="settings"><i class="ph ph-gear"></i><span>Settings</span></a>
+  </nav>
+
+  <!-- Scripts -->
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
   <script src="firebase-config.js"></script>
   <script src="auth.js"></script>
-  <script src="nav.js"></script>
   <script src="db.js"></script>
+  <script src="nav.js"></script>
   <script src="ai-logic.js"></script>
   <script src="chart-engine.js"></script>
 
@@ -151,62 +310,67 @@
     (function () {
       KINEAuth.requireAuth();
 
-      const CONFIG = {
-        circumference: 2 * Math.PI * 50 // for donut
-      };
+      function updateHealthGauge(perc) {
+        const fill = document.getElementById('health-gauge');
+        const text = document.getElementById('val-health-perc');
+        if (!fill || !text) return;
 
-      function updateDonutChart(zenithPerc, deviatedPerc) {
-        const zenithRing = document.getElementById('donut-fill-zenith');
-        const deviatedRing = document.getElementById('donut-fill-deviated');
-        const zenithLabel = document.getElementById('stat-zenith-perc');
-        const deviatedLabel = document.getElementById('stat-deviated-perc');
-        const inactiveLabel = document.getElementById('stat-inactive-perc');
-
-        if (!zenithRing || !deviatedRing) return;
-
-        const zenithOffset = (zenithPerc / 100) * CONFIG.circumference;
-        const deviatedOffset = (deviatedPerc / 100) * CONFIG.circumference;
-        const inactivePerc = Math.max(0, 100 - (zenithPerc + deviatedPerc));
-
-        zenithRing.setAttribute('stroke-dasharray', `${zenithOffset} ${CONFIG.circumference - zenithOffset}`);
-
-        deviatedRing.setAttribute('stroke-dasharray', `${deviatedOffset} ${CONFIG.circumference - deviatedOffset}`);
-        deviatedRing.setAttribute('stroke-dashoffset', -zenithOffset);
-
-        if (zenithLabel) zenithLabel.textContent = Math.round(zenithPerc) + '%';
-        if (deviatedLabel) deviatedLabel.textContent = Math.round(deviatedPerc) + '%';
-        if (inactiveLabel) inactiveLabel.textContent = Math.round(inactivePerc) + '%';
+        // Map 0-100 to -180 to 0 degrees
+        const rotation = -180 + (perc / 100) * 180;
+        fill.style.transform = `rotate(${rotation}deg)`;
+        text.textContent = Math.round(perc) + '%';
       }
 
       KINEAuth.onReady(user => {
         if (!user) return;
 
-        // 1. Live Trend Chart (Recent 75s Window)
-        KINEdb.onHistory(user.uid, historyData => {
-          const svg = document.getElementById('analytics-trend-svg');
-          if (!svg) return;
+        // Entrance Animation
+        anime.timeline({
+          easing: 'easeOutExpo',
+          duration: 1000
+        })
+        .add({
+          targets: '.hud-header',
+          opacity: [0, 1],
+          translateY: [-20, 0]
+        })
+        .add({
+          targets: '.anim-stagger',
+          opacity: [0, 1],
+          translateY: [30, 0],
+          delay: anime.stagger(120)
+        }, '-=600');
 
+        // 1. History Trend
+        KINEdb.onHistory(user.uid, historyData => {
           if (historyData && window.KINE_Charts) {
             KINE_Charts.renderTrendChart('analytics-trend-svg', historyData);
-
-            if (window.KINE_Charts.renderLabels) {
-              KINE_Charts.renderLabels('analytics-chart-labels', ['-1m', '-40s', '-20s', 'Now']);
-            }
-          } else {
-            KINE_Charts.renderTrendChart('analytics-trend-svg', [0, 0]);
           }
         });
 
-        // 2. Daily Average Zenith Score Listener (Rolling Daily Trend)
+        // 2. Daily Stats
         KINEdb.onDailyStats(user.uid, avgScore => {
-          updateDonutChart(avgScore, 100 - avgScore);
+          updateHealthGauge(avgScore);
+          
+          // Update tension bars (simulated breakdown for now)
+          const zenith = avgScore;
+          const dev = Math.max(0, (100 - zenith) * 0.7);
+          const stress = 100 - zenith - dev;
+
+          document.getElementById('tension-zenith-fill').style.width = zenith + '%';
+          document.getElementById('tension-zenith-val').textContent = Math.round(zenith) + '%';
+          document.getElementById('tension-dev-fill').style.width = dev + '%';
+          document.getElementById('tension-dev-val').textContent = Math.round(dev) + '%';
+          document.getElementById('tension-stress-fill').style.width = stress + '%';
+          document.getElementById('tension-stress-val').textContent = Math.round(stress) + '%';
         });
 
-        // 2. Live Insights & Neck Analysis
+        // 3. Live AI Analysis
         KINEdb.onLiveDevicePosture(deviceInfo => {
           if (!deviceInfo) return;
+          
+          document.getElementById('val-peak-dev').textContent = (deviceInfo.deviation || 0).toFixed(1) + '°';
 
-          // Update Neck Analysis using Live Deviation
           if (window.KINE_AI) {
             const analysis = KINE_AI.analyzeNeckHealth({
               avgAngle: deviceInfo.deviation || 15,
@@ -214,18 +378,8 @@
               corrections: 0
             });
 
-            const riskLabel = document.getElementById('neck-risk-label');
-            const riskFill = document.getElementById('neck-risk-fill');
-            const suggestion = document.getElementById('neck-suggestion');
-
-            if (riskLabel) riskLabel.textContent = analysis.risk + ' Risk';
-            if (suggestion) suggestion.textContent = analysis.suggestion + ` (Live Deviation: ${(deviceInfo.deviation || 0).toFixed(1)}°)`;
-
-            if (riskFill) {
-              const prob = analysis.probability * 100;
-              riskFill.style.width = prob + '%';
-              riskFill.style.background = prob > 70 ? 'var(--danger)' : (prob > 40 ? 'var(--warning)' : 'var(--success)');
-            }
+            document.getElementById('val-risk-level').textContent = analysis.risk.toUpperCase();
+            document.getElementById('ai-insight').textContent = analysis.suggestion;
           }
         });
       });

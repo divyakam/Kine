@@ -1,120 +1,284 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="KINE — Manage your device, account, and preferences.">
-  <title>KINE — Settings</title>
+  <title>KINE — System Preferences</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet">
   <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
   <link rel="stylesheet" href="styles.css">
   <script src="splash.js" defer></script>
+  <style>
+    .settings-container {
+      width: 100%;
+      max-width: var(--max-content-width);
+      margin: 0 auto;
+      padding-bottom: 120px;
+    }
+
+    .settings-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+      margin-top: 40px;
+    }
+
+    .settings-group {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .settings-group-label {
+      font-size: 0.75rem;
+      font-weight: 800;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--accent-primary);
+      opacity: 0.8;
+      margin-left: 8px;
+    }
+
+    /* Menu Items */
+    .glass-menu {
+      padding: 8px;
+      border-radius: 20px;
+    }
+
+    .glass-menu-item {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 16px 20px;
+      border-radius: 12px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      cursor: pointer;
+      border: 1px solid transparent;
+    }
+
+    .glass-menu-item:hover {
+      background: rgba(255, 255, 255, 0.03);
+      border-color: rgba(255, 255, 255, 0.05);
+      transform: translateX(4px);
+    }
+
+    .glass-menu-item i:first-child {
+      font-size: 1.4rem;
+      color: var(--accent-primary);
+      width: 24px;
+      text-align: center;
+    }
+
+    .menu-text {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .menu-title {
+      font-weight: 600;
+      font-size: 1rem;
+      color: #fff;
+    }
+
+    .menu-subtitle {
+      font-size: 0.75rem;
+      opacity: 0.5;
+    }
+
+    .menu-arrow {
+      opacity: 0.3;
+      font-size: 0.9rem;
+    }
+
+    /* Logout Action */
+    .exit-btn {
+      margin-top: 24px;
+      padding: 18px;
+      border-radius: 16px;
+      background: rgba(239, 68, 68, 0.05);
+      border: 1px solid rgba(239, 68, 68, 0.2);
+      color: #FCA5A5;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .exit-btn:hover {
+      background: rgba(239, 68, 68, 0.1);
+      border-color: rgba(239, 68, 68, 0.4);
+      color: #fff;
+      box-shadow: 0 0 20px rgba(239, 68, 68, 0.1);
+    }
+
+    @media (min-width: 768px) {
+      .settings-container {
+        padding: 40px 0px;
+      }
+    }
+
+    @media (max-width: 767px) {
+      .glass-menu-item {
+        padding: 14px 16px;
+        gap: 12px;
+      }
+
+      .menu-title { font-size: 0.9rem; }
+
+      .settings-grid { margin-top: 24px; gap: 24px; }
+    }
+  </style>
 </head>
+
 <body>
 
-<main id="app-container">
-  <section class="screen active" id="settings-hub">
-    <h2 class="screen-title">Settings</h2>
-    <p class="screen-subtitle">Manage your device and preferences.</p>
+  <div class="bg-glows">
+    <div class="glow-orb glow-1"></div>
+    <div class="glow-orb glow-2"></div>
+  </div>
+  <div class="grid-overlay"></div>
 
-    <div class="settings-section">
-      <h3>Device</h3>
-      <div class="card" style="padding:0;overflow:hidden;">
-        <div class="menu-list">
-          <div class="menu-item" data-navigate="device-management">
-            <i class="ph ph-bluetooth"></i>
-            <span class="menu-label">Device Management</span>
-            <i class="ph ph-caret-right menu-arrow"></i>
+  <nav class="side-nav" aria-label="Main navigation">
+    <div class="nav-logo">
+      <div class="logo-circle">K</div><span>KINE</span>
+    </div>
+    <a href="dashboard.html" class="nav-item" data-page="dashboard"><i
+        class="ph ph-house"></i><span>Dashboard</span></a>
+    <a href="live-posture.html" class="nav-item" data-page="live-posture"><i class="ph ph-activity"></i><span>Live
+        Posture</span></a>
+    <a href="journey.html" class="nav-item" data-page="journey"><i class="ph ph-trophy"></i><span>Journey</span></a>
+    <a href="analytics.html" class="nav-item" data-page="analytics"><i
+        class="ph ph-chart-line-up"></i><span>Analytics</span></a>
+    <a href="timeline.html" class="nav-item" data-page="timeline"><i
+        class="ph ph-clock-countdown"></i><span>Timeline</span></a>
+    <a href="missions.html" class="nav-item" data-page="missions"><i class="ph ph-target"></i><span>Missions</span></a>
+    <a href="leaderboard.html" class="nav-item" data-page="leaderboard"><i
+        class="ph ph-ranking"></i><span>Leaderboard</span></a>
+    <div class="nav-spacer"></div>
+    <a href="settings.html" class="nav-item active" data-page="settings"><i class="ph ph-gear"></i><span>Settings</span></a>
+  </nav>
+
+  <main id="app-container">
+    <section class="screen active" id="settings-hud">
+      <div class="settings-container">
+        
+        <header class="hud-header">
+          <span class="caption" style="color: var(--accent-primary); letter-spacing: 0.3em;">SYSTEM CONTROL</span>
+          <h1 class="heading-lg" style="margin-top: 4px;">Preferences</h1>
+        </header>
+
+        <div class="settings-grid">
+          
+          <!-- Device Settings -->
+          <div class="settings-group anim-stagger">
+            <span class="settings-group-label">Tactical Hardware</span>
+            <div class="glass-card glass-menu">
+              <div class="glass-menu-item" data-navigate="device-management">
+                <i class="ph ph-bluetooth"></i>
+                <div class="menu-text">
+                  <span class="menu-title">Device Management</span>
+                  <span class="menu-subtitle">Sync and calibrate KINE sensor</span>
+                </div>
+                <i class="ph ph-caret-right menu-arrow"></i>
+              </div>
+              <div class="glass-menu-item" data-navigate="recalibrate">
+                <i class="ph ph-crosshair"></i>
+                <div class="menu-text">
+                  <span class="menu-title">Recalibrate</span>
+                  <span class="menu-subtitle">Reset orientation baseline</span>
+                </div>
+                <i class="ph ph-caret-right menu-arrow"></i>
+              </div>
+              <div class="glass-menu-item" data-navigate="vibration-haptics">
+                <i class="ph ph-vibrate"></i>
+                <div class="menu-text">
+                  <span class="menu-title">Vibration & Haptics</span>
+                  <span class="menu-subtitle">Modify tactile feedback intensity</span>
+                </div>
+                <i class="ph ph-caret-right menu-arrow"></i>
+              </div>
+            </div>
           </div>
-          <div class="menu-item" data-navigate="recalibrate">
-            <i class="ph ph-crosshair"></i>
-            <span class="menu-label">Recalibrate</span>
-            <i class="ph ph-caret-right menu-arrow"></i>
+
+          <!-- Account Settings -->
+          <div class="settings-group anim-stagger">
+            <span class="settings-group-label">User Profile</span>
+            <div class="glass-card glass-menu">
+              <div class="glass-menu-item" data-navigate="edit-profile">
+                <i class="ph ph-user-circle"></i>
+                <div class="menu-text">
+                  <span class="menu-title">Edit Identity</span>
+                  <span class="menu-subtitle">Update name and biometric data</span>
+                </div>
+                <i class="ph ph-caret-right menu-arrow"></i>
+              </div>
+              <div class="glass-menu-item" data-navigate="notifications">
+                <i class="ph ph-bell"></i>
+                <div class="menu-text">
+                  <span class="menu-title">Alert Protocols</span>
+                  <span class="menu-subtitle">Manage push and tactical alerts</span>
+                </div>
+                <i class="ph ph-caret-right menu-arrow"></i>
+              </div>
+            </div>
           </div>
-          <div class="menu-item" data-navigate="vibration-haptics">
-            <i class="ph ph-vibrate"></i>
-            <span class="menu-label">Vibration & Haptics</span>
-            <i class="ph ph-caret-right menu-arrow"></i>
+
+          <!-- Support -->
+          <div class="settings-group anim-stagger">
+            <span class="settings-group-label">Intelligence</span>
+            <div class="glass-card glass-menu">
+              <div class="glass-menu-item" data-navigate="help-support">
+                <i class="ph ph-question"></i>
+                <div class="menu-text">
+                  <span class="menu-title">Support Hub</span>
+                  <span class="menu-subtitle">Documentation and FAQ</span>
+                </div>
+                <i class="ph ph-caret-right menu-arrow"></i>
+              </div>
+              <div class="glass-menu-item">
+                <i class="ph ph-info"></i>
+                <div class="menu-text">
+                  <span class="menu-title">About KINE</span>
+                  <span class="menu-subtitle">Version 2.4.0 (Obsidian)</span>
+                </div>
+                <i class="ph ph-caret-right menu-arrow"></i>
+              </div>
+            </div>
           </div>
-          <div class="menu-item" data-navigate="smart-sleep">
-            <i class="ph ph-moon"></i>
-            <span class="menu-label">Smart Sleep</span>
-            <i class="ph ph-caret-right menu-arrow"></i>
-          </div>
+
+          <!-- Logout -->
+          <button class="exit-btn anim-stagger" id="logout-trigger">
+            <i class="ph ph-sign-out"></i>
+            <span>Terminate Session</span>
+          </button>
+
         </div>
       </div>
-    </div>
+    </section>
+  </main>
 
-    <div class="settings-section">
-      <h3>Account</h3>
-      <div class="card" style="padding:0;overflow:hidden;">
-        <div class="menu-list">
-          <div class="menu-item" data-navigate="edit-profile">
-            <i class="ph ph-user-circle"></i>
-            <span class="menu-label">Edit Profile</span>
-            <i class="ph ph-caret-right menu-arrow"></i>
-          </div>
-          <div class="menu-item" data-navigate="notifications">
-            <i class="ph ph-bell"></i>
-            <span class="menu-label">Notifications</span>
-            <i class="ph ph-caret-right menu-arrow"></i>
-          </div>
-          <div class="menu-item" data-navigate="user-selection">
-            <i class="ph ph-users-three"></i>
-            <span class="menu-label">Switch User</span>
-            <i class="ph ph-caret-right menu-arrow"></i>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="settings-section">
-      <h3>Support</h3>
-      <div class="card" style="padding:0;overflow:hidden;">
-        <div class="menu-list">
-          <div class="menu-item" data-navigate="help-support">
-            <i class="ph ph-question"></i>
-            <span class="menu-label">Help & FAQ</span>
-            <i class="ph ph-caret-right menu-arrow"></i>
-          </div>
-          <div class="menu-item">
-            <i class="ph ph-info"></i>
-            <span class="menu-label">About KINE</span>
-            <i class="ph ph-caret-right menu-arrow"></i>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <button class="btn btn-outline btn-block" data-navigate="log-in" style="margin-top:12px;"><i class="ph ph-sign-out"></i> Log Out</button>
-  </section>
-</main>
-
-<!-- Bottom Nav -->
-<nav class="bottom-nav" aria-label="Main navigation">
-  <a href="dashboard.html" class="nav-item" data-page="dashboard"><i class="ph ph-house"></i><span>Home</span></a>
-  <a href="live-posture.html" class="nav-item" data-page="live-posture"><i class="ph ph-activity"></i><span>Live</span></a>
-  <a href="journey.html" class="nav-item" data-page="journey"><i class="ph ph-trophy"></i><span>Journey</span></a>
-  <a href="analytics.html" class="nav-item" data-page="analytics"><i class="ph ph-chart-line-up"></i><span>Insights</span></a>
-  <a href="settings.html" class="nav-item" data-page="settings"><i class="ph ph-gear"></i><span>Settings</span></a>
-</nav>
-
-<!-- Side Nav -->
-<nav class="side-nav" aria-label="Main navigation">
-  <div class="nav-logo"><div class="logo-circle">K</div><span>KINE</span></div>
-  <a href="dashboard.html" class="nav-item" data-page="dashboard"><i class="ph ph-house"></i><span>Dashboard</span></a>
-  <a href="live-posture.html" class="nav-item" data-page="live-posture"><i class="ph ph-activity"></i><span>Live Posture</span></a>
-  <a href="journey.html" class="nav-item" data-page="journey"><i class="ph ph-trophy"></i><span>Journey</span></a>
-  <a href="analytics.html" class="nav-item" data-page="analytics"><i class="ph ph-chart-line-up"></i><span>Analytics</span></a>
-  <a href="timeline.html" class="nav-item" data-page="timeline"><i class="ph ph-clock-countdown"></i><span>Timeline</span></a>
-  <a href="missions.html" class="nav-item" data-page="missions"><i class="ph ph-target"></i><span>Missions</span></a>
-  <a href="leaderboard.html" class="nav-item" data-page="leaderboard"><i class="ph ph-ranking"></i><span>Leaderboard</span></a>
-  <div class="nav-spacer"></div>
-  <a href="settings.html" class="nav-item" data-page="settings"><i class="ph ph-gear"></i><span>Settings</span></a>
-</nav>
+  <nav class="bottom-nav" aria-label="Main navigation">
+    <a href="dashboard.html" class="nav-item" data-page="dashboard"><i class="ph ph-house"></i><span>Home</span></a>
+    <a href="live-posture.html" class="nav-item" data-page="live-posture"><i
+        class="ph ph-activity"></i><span>Live</span></a>
+    <a href="journey.html" class="nav-item" data-page="journey"><i class="ph ph-trophy"></i><span>Journey</span></a>
+    <a href="analytics.html" class="nav-item" data-page="analytics"><i
+        class="ph ph-chart-line-up"></i><span>Insights</span></a>
+    <a href="settings.html" class="nav-item active" data-page="settings"><i class="ph ph-gear"></i><span>Settings</span></a>
+  </nav>
 
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -125,18 +289,40 @@
   <script src="nav.js"></script>
 
   <script>
-    (function() {
-      // Auth Guard
+    (function () {
       KINEAuth.requireAuth();
 
-      const logoutBtn = document.querySelector('button[data-navigate="log-in"]');
-      if (logoutBtn) {
-        logoutBtn.addEventListener('click', async (e) => {
-          e.preventDefault();
-          await KINEAuth.logOut();
-        });
-      }
+      KINEAuth.onReady(user => {
+        if (!user) return;
+
+        // Entrance Animation
+        anime.timeline({
+          easing: 'easeOutExpo',
+          duration: 1000
+        })
+        .add({
+          targets: '.hud-header',
+          opacity: [0, 1],
+          translateY: [-20, 0]
+        })
+        .add({
+          targets: '.anim-stagger',
+          opacity: [0, 1],
+          translateY: [30, 0],
+          delay: anime.stagger(150)
+        }, '-=600');
+
+        // Logout Logic
+        const logoutBtn = document.getElementById('logout-trigger');
+        if (logoutBtn) {
+          logoutBtn.addEventListener('click', async (e) => {
+            e.preventDefault();
+            await KINEAuth.logOut();
+          });
+        }
+      });
     })();
   </script>
 </body>
+
 </html>
