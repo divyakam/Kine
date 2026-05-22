@@ -62,22 +62,23 @@
     /* Premium Glass Cards */
     .glass-card {
       background: rgba(255, 255, 255, 0.03);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(32px);
+      -webkit-backdrop-filter: blur(32px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: 32px;
       padding: 32px;
       transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
       opacity: 0;
       transform: translateY(30px);
-      visibility: hidden; /* Prevent flicker before animation */
+      visibility: hidden;
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
     }
 
     .glass-card:hover {
-      background: rgba(255, 255, 255, 0.05);
-      border-color: rgba(129, 236, 255, 0.3);
+      background: rgba(255, 255, 255, 0.06);
+      border-color: rgba(129, 236, 255, 0.4);
       transform: translateY(-5px);
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 20px rgba(129, 236, 255, 0.1);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), 0 0 20px rgba(129, 236, 255, 0.15);
     }
 
     /* Zenith Hero Section */
@@ -217,8 +218,10 @@
     /* Responsive Adjustments */
     @media (max-width: 768px) {
       .dash-stats {
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: 1fr;
+        gap: 12px;
       }
+
       .stat-card {
         padding: 20px;
       }
@@ -237,7 +240,7 @@
   <main id="app-container">
     <div id="kine-toast-container" class="toast-container"></div>
     <section class="screen active" id="home-dashboard">
-      
+
       <header class="dash-header">
         <div class="dash-header-left">
           <div class="avatar">U</div>
@@ -290,10 +293,12 @@
 
       <!-- Posture Trend Chart -->
       <div class="glass-card dash-chart-card" id="chart-card" style="margin-bottom: 32px;">
-        <div class="chart-header" style="margin-bottom:24px; display: flex; justify-content: space-between; align-items: center;">
+        <div class="chart-header"
+          style="margin-bottom:24px; display: flex; justify-content: space-between; align-items: center;">
           <h3 class="heading-sm" style="margin: 0;">Posture Trend</h3>
           <div class="seg-toggle" style="background: rgba(255,255,255,0.05); padding: 4px; border-radius: 12px;">
-            <button class="active" style="background: var(--accent-primary); color: var(--bg-primary); padding: 6px 16px; border-radius: 8px; font-weight: 700; font-size: 0.8rem;">LIVE</button>
+            <button class="active"
+              style="background: var(--accent-primary); color: var(--bg-primary); padding: 6px 16px; border-radius: 8px; font-weight: 700; font-size: 0.8rem;">LIVE</button>
           </div>
         </div>
         <div class="chart-container" style="height:180px;">
@@ -372,7 +377,7 @@
     (function () {
       KINEAuth.requireAuth();
 
-      window.onload = function() {
+      window.onload = function () {
         if (window.KINESplash && window.KINESplash.finished) {
           runDashboardEntrance();
         } else {
@@ -394,34 +399,34 @@
           opacity: [0, 1],
           translateY: [-20, 0]
         })
-        .add({
-          targets: '.glass-card',
-          begin: (anim) => {
-            // Set visibility to visible when animation starts
-            document.querySelectorAll('.glass-card').forEach(el => el.style.visibility = 'visible');
-          }
-        }, 0)
-        .add({
-          targets: '#hero-card',
-          opacity: [0, 1],
-          translateY: [30, 0]
-        }, '-=800')
-        .add({
-          targets: '.stat-card',
-          opacity: [0, 1],
-          translateY: [30, 0],
-          delay: anime.stagger(150)
-        }, '-=1000')
-        .add({
-          targets: '#chart-card',
-          opacity: [0, 1],
-          translateY: [30, 0]
-        }, '-=1000')
-        .add({
-          targets: '#ai-card',
-          opacity: [0, 1],
-          translateY: [30, 0]
-        }, '-=1000');
+          .add({
+            targets: '.glass-card',
+            begin: (anim) => {
+              // Set visibility to visible when animation starts
+              document.querySelectorAll('.glass-card').forEach(el => el.style.visibility = 'visible');
+            }
+          }, 0)
+          .add({
+            targets: '#hero-card',
+            opacity: [0, 1],
+            translateY: [30, 0]
+          }, '-=800')
+          .add({
+            targets: '.stat-card',
+            opacity: [0, 1],
+            translateY: [30, 0],
+            delay: anime.stagger(150)
+          }, '-=1000')
+          .add({
+            targets: '#chart-card',
+            opacity: [0, 1],
+            translateY: [30, 0]
+          }, '-=1000')
+          .add({
+            targets: '#ai-card',
+            opacity: [0, 1],
+            translateY: [30, 0]
+          }, '-=1000');
 
         // Background Glow Animation
         anime({
@@ -474,7 +479,7 @@
           if (ring && valueEl) {
             const circumference = 2 * Math.PI * 45;
             const offset = circumference - (avg / 100) * circumference;
-            
+
             // Animate value counter
             const obj = { val: parseInt(valueEl.textContent) || 0 };
             anime({
@@ -483,7 +488,7 @@
               round: 1,
               duration: 1500,
               easing: 'easeOutExpo',
-              update: function() {
+              update: function () {
                 valueEl.textContent = obj.val;
               }
             });

@@ -1,6 +1,7 @@
 /* ============================================================
-   KINE — SVG Chart Engine
-   Handles dynamic generation of smooth area/line charts
+   KINE — Advanced SVG Chart Engine (Obsidian Pulse Edition)
+   Handles dynamic generation of cinematic, smooth-curved data 
+   visualizations with high-end glow effects and entrance logic.
    ============================================================ */
 
 const KINE_Charts = (() => {
@@ -16,8 +17,8 @@ const KINE_Charts = (() => {
   function getPathData(data, width, height) {
     if (!data || data.length < 2) return "";
 
-    const paddingY = 20;
-    const paddingX = 12; // Horizontal padding for edge breathing room
+    const paddingY = 25;
+    const paddingX = 16;
     const effectiveHeight = height - paddingY * 2;
     const effectiveWidth = width - paddingX * 2;
     const xStep = effectiveWidth / (data.length - 1);
@@ -30,23 +31,19 @@ const KINE_Charts = (() => {
     // Start path
     let path = `M ${points[0].x},${points[0].y}`;
 
-    // Quadratic curve approach for smoother "liquid" look
+    // Cubic curve approach for a "fluid" architectural look
     for (let i = 0; i < points.length - 1; i++) {
         const p0 = points[i];
         const p1 = points[i+1];
-        
-        // Control points for smoother transition
-        const cp1x = p0.x + (p1.x - p0.x) / 2.5;
-        const cp2x = p1.x - (p1.x - p0.x) / 2.5;
-
-        path += ` C ${cp1x},${p0.y} ${cp2x},${p1.y} ${p1.x},${p1.y}`;
+        const cp1x = p0.x + (p1.x - p0.x) / 2;
+        path += ` C ${cp1x},${p0.y} ${cp1x},${p1.y} ${p1.x},${p1.y}`;
     }
 
     return path;
   }
 
   /**
-   * Renders a trend chart into an existing SVG
+   * Renders a trend chart with high-end visual effects
    * @param {string} svgId - ID of the SVG element
    * @param {Array} data - Array of values (0-100)
    */
@@ -57,19 +54,37 @@ const KINE_Charts = (() => {
     // Use viewBox dimensions
     const vb = svg.getAttribute('viewBox') || "0 0 400 160";
     const [,, width, height] = vb.split(' ').map(parseFloat);
+    const paddingY = 25;
+    const paddingX = 16;
 
-    // --- Visual Axes and Grid ---
-    let gridGroup = svg.querySelector('.chart-grid-lines');
-    if (!gridGroup) {
-      gridGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
-      gridGroup.setAttribute('class', 'chart-grid-lines');
-      svg.insertBefore(gridGroup, svg.firstChild);
-    }
-    gridGroup.innerHTML = '';
+    // --- 1. Prepare SVG Structure ---
+    svg.innerHTML = `
+      <defs>
+        <linearGradient id="areaGrad-${svgId}" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="var(--accent-primary)" stop-opacity="0.25" />
+          <stop offset="100%" stop-color="var(--accent-primary)" stop-opacity="0" />
+        </linearGradient>
+        <filter id="glow-${svgId}">
+          <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+          <feMerge>
+            <feMergeNode in="coloredBlur"/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
+      </defs>
+      <g class="chart-grid"></g>
+      <path class="chart-area" fill="url(#areaGrad-${svgId})" />
+      <path class="chart-line" fill="none" stroke="var(--accent-primary)" stroke-width="2.5" stroke-linecap="round" filter="url(#glow-${svgId})" />
+      <g class="chart-points"></g>
+    `;
 
+    const grid = svg.querySelector('.chart-grid');
+    const area = svg.querySelector('.chart-area');
+    const line = svg.querySelector('.chart-line');
+    const pointsGroup = svg.querySelector('.chart-points');
+
+    // --- 2. Render Grid ---
     const levels = [0, 50, 100];
-    const paddingY = 20;
-    const paddingX = 12;
     const effectiveHeight = height - paddingY * 2;
     const effectiveWidth = width - paddingX * 2;
 
@@ -80,97 +95,77 @@ const KINE_Charts = (() => {
       gline.setAttribute('y1', gy);
       gline.setAttribute('x2', width - paddingX);
       gline.setAttribute('y2', gy);
-      gline.setAttribute('stroke', 'var(--glass-border)');
-      gline.setAttribute('stroke-opacity', '0.5');
+      gline.setAttribute('stroke', 'rgba(255,255,255,0.05)');
       gline.setAttribute('stroke-width', '1');
-      if (level > 0 && level < 100) {
-        gline.setAttribute('stroke-dasharray', '4 4');
-      }
-      gridGroup.appendChild(gline);
+      if (level === 0) gline.setAttribute('stroke', 'rgba(255,255,255,0.1)');
+      grid.appendChild(gline);
     });
 
-    // Vertical Axis Line
-    const vy = document.createElementNS("http://www.w3.org/2000/svg", "line");
-    vy.setAttribute('x1', paddingX); vy.setAttribute('y1', paddingY);
-    vy.setAttribute('x2', paddingX); vy.setAttribute('y2', height - paddingY);
-    vy.setAttribute('stroke', 'var(--glass-border)');
-    vy.setAttribute('stroke-width', '1.5');
-    gridGroup.appendChild(vy);
-
-    // Horizontal Axis Line
-    const hx = document.createElementNS("http://www.w3.org/2000/svg", "line");
-    hx.setAttribute('x1', paddingX); hx.setAttribute('y1', height - paddingY);
-    hx.setAttribute('x2', width - paddingX); hx.setAttribute('y2', height - paddingY);
-    hx.setAttribute('stroke', 'var(--glass-border)');
-    hx.setAttribute('stroke-width', '1.5');
-    gridGroup.appendChild(hx);
-
+    // --- 3. Render Paths ---
     const pathData = getPathData(data, width, height);
+    line.setAttribute('d', pathData);
 
-    // Update data lines...
-    const linePath = svg.querySelector('.chart-line');
-    if (linePath) {
-      linePath.setAttribute('d', pathData);
-    }
+    const closedPath = `${pathData} L ${width - paddingX},${height - paddingY} L ${paddingX},${height - paddingY} Z`;
+    area.setAttribute('d', closedPath);
 
-    const areaPath = svg.querySelector('.chart-area');
-    if (areaPath) {
-      const closedPath = `${pathData} L ${width - paddingX},${height - paddingY} L ${paddingX},${height - paddingY} Z`;
-      areaPath.setAttribute('d', closedPath);
-    }
+    // --- 4. Render Points (Animated Glow) ---
+    const xStep = effectiveWidth / (data.length - 1);
+    data.forEach((val, i) => {
+      const cx = paddingX + i * xStep;
+      const cy = height - (paddingY + (val / 100) * effectiveHeight);
 
-    const pointsGroup = svg.querySelector('.chart-points');
-    if (pointsGroup) {
-      pointsGroup.innerHTML = '';
-      const xStep = effectiveWidth / (data.length - 1);
-      const lastVal = data[data.length - 1];
-      const cx = paddingX + (data.length - 1) * xStep;
-      const cy = height - (paddingY + (lastVal / 100) * effectiveHeight);
-      
-      const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-      circle.setAttribute('cx', cx);
-      circle.setAttribute('cy', cy);
-      circle.setAttribute('r', '4');
-      circle.setAttribute('fill', 'var(--accent-primary)');
-      circle.style.filter = 'drop-shadow(0 0 8px var(--accent-primary-dim))';
-      pointsGroup.appendChild(circle);
-    }
-  }
+      // Point core
+      const point = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+      point.setAttribute('cx', cx);
+      point.setAttribute('cy', cy);
+      point.setAttribute('r', '3');
+      point.setAttribute('fill', 'var(--accent-primary)');
+      pointsGroup.appendChild(point);
 
-  /**
-   * Generates X-Axis labels
-   * @param {string} containerId - ID of the labels container
-   * @param {Array} labels - Array of strings (e.g., ['M', 'T', ...])
-   */
-  function renderLabels(containerId, labels) {
-    const container = document.getElementById(containerId);
-    if (!container) return;
+      // Pulse ring for last point
+      if (i === data.length - 1) {
+        const pulse = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        pulse.setAttribute('cx', cx);
+        pulse.setAttribute('cy', cy);
+        pulse.setAttribute('r', '3');
+        pulse.setAttribute('fill', 'none');
+        pulse.setAttribute('stroke', 'var(--accent-primary)');
+        pulse.setAttribute('stroke-width', '1');
+        pointsGroup.appendChild(pulse);
 
-    // Distribute labels and ensure they are legible
-    container.innerHTML = labels.map(l => {
-       // Optional: Shorten labels if they are too long (e.g., Afternoon -> Aft..)
-       // const displayLabel = l.length > 8 ? l.substring(0, 3) + '.' : l;
-       return `<span class="chart-label">${l}</span>`;
-    }).join('');
-  }
+        anime({
+          targets: pulse,
+          r: [3, 10],
+          opacity: [0.8, 0],
+          duration: 1500,
+          loop: true,
+          easing: 'easeOutSine'
+        });
+      }
+    });
 
-  /**
-   * Renders Y-Axis markers into a container
-   * @param {string} containerId - ID of the container element
-   * @param {Array} markers - Values to display (top to bottom)
-   */
-  function renderYAxis(containerId, markers = ['100', '50', '0']) {
-    const container = document.getElementById(containerId);
-    if (!container) return;
-    
-    container.className = 'y-axis-labels';
-    container.innerHTML = markers.map(m => `<span>${m}</span>`).join('');
+    // --- 5. Entrance Animation ---
+    const lineLen = line.getTotalLength();
+    line.setAttribute('stroke-dasharray', lineLen);
+    line.setAttribute('stroke-dashoffset', lineLen);
+
+    anime({
+      targets: line,
+      strokeDashoffset: [lineLen, 0],
+      duration: 2000,
+      easing: 'easeInOutQuart'
+    });
+
+    anime({
+      targets: area,
+      opacity: [0, 1],
+      duration: 2500,
+      easing: 'easeOutQuad'
+    });
   }
 
   return {
-    renderTrendChart,
-    renderLabels,
-    renderYAxis
+    renderTrendChart
   };
 })();
 

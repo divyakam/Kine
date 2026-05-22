@@ -12,17 +12,68 @@
     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap"
     rel="stylesheet">
   <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
   <link rel="stylesheet" href="styles.css">
+  <style>
+    /* Page Specific Overrides */
+    .timeline-summary {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    .summary-stat {
+      padding: 20px;
+      text-align: center;
+    }
+
+    .stat-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 4px;
+      display: block;
+    }
+
+    .stat-value {
+      font-size: 1.75rem;
+      font-weight: 800;
+      color: var(--text-main);
+      font-family: 'Manrope', sans-serif;
+    }
+  </style>
 </head>
 
 <body>
 
+  <div class="bg-glows">
+    <div class="glow-orb glow-1"></div>
+    <div class="glow-orb glow-2"></div>
+  </div>
+  <div class="grid-overlay"></div>
+
   <main id="app-container">
     <section class="screen active" id="daily-timeline">
-      <a href="analytics.html" class="back-btn"><i class="ph ph-arrow-left"></i> Back</a>
-      <h2 class="screen-title">Today's Timeline</h2>
-      <p class="screen-subtitle">Your posture events throughout the day.</p>
-      <div class="timeline">
+      <div class="screen-header" style="margin-bottom: 32px; display: flex; flex-direction: column; align-items: flex-start;">
+        <h2 class="heading-lg" style="margin: 0;">Daily Activity</h2>
+        <p class="caption" style="margin-top: 4px; opacity: 0.6;">Tracking your postural evolution</p>
+      </div>
+
+      <div class="timeline-summary">
+        <div class="glass-card summary-stat" id="summary-good">
+          <span class="stat-label">Good Posture</span>
+          <span class="stat-value" id="count-good">0</span>
+        </div>
+        <div class="glass-card summary-stat" id="summary-bad">
+          <span class="stat-label">Corrections</span>
+          <span class="stat-value" id="count-bad">0</span>
+        </div>
+      </div>
+
+      <div class="timeline" id="events-container">
         <!-- Dynamic content injected by JS -->
       </div>
     </section>
@@ -74,54 +125,99 @@
       KINEAuth.onReady(user => {
         if (!user) return;
 
-        const timelineContainer = document.querySelector('.timeline');
+        const container = document.getElementById('events-container');
+        const goodCountEl = document.getElementById('count-good');
+        const badCountEl = document.getElementById('count-bad');
+
+        // Animation for background
+        anime({
+          targets: '.glow-orb',
+          scale: [1, 1.2],
+          opacity: [0.1, 0.15],
+          duration: 10000,
+          direction: 'alternate',
+          loop: true,
+          easing: 'easeInOutSine'
+        });
 
         KINEdb.onTimeline(user.uid, events => {
-          console.log('[Timeline] Data received:', events);
-          timelineContainer.innerHTML = '';
+          container.innerHTML = '';
+          let goodCount = 0;
+          let badCount = 0;
 
           if (!events || events.length === 0) {
-            timelineContainer.innerHTML = '<p style="text-align:center;color:var(--text-muted);padding:40px;">No events logged yet.</p>';
+            container.innerHTML = `
+              <div class="glass-card" style="padding: 40px; text-align: center; color: var(--text-muted);">
+                <i class="ph ph-clock-countdown" style="font-size: 3rem; opacity: 0.2; margin-bottom: 16px; display: block;"></i>
+                <p>No activity recorded today.</p>
+              </div>
+            `;
             return;
           }
 
-          events.forEach(event => {
-            // Robust Regex Parser for "DD-MM-YYYY HH:mm:ss" or standard timestamps
+          events.forEach((event, index) => {
             let date = new Date(event.timestamp);
 
+            // Robust Regex Parser for "DD-MM-YYYY HH:mm:ss" or standard timestamps
             if (isNaN(date.getTime()) && typeof event.timestamp === 'string') {
               const match = event.timestamp.match(/(\d{1,2})-(\d{1,2})-(\d{4})[,\s]+(\d{1,2}):(\d{1,2}):(\d{1,2})/);
               if (match) {
                 const [_, d, m, y, hh, mm, ss] = match;
                 date = new Date(y, m - 1, d, hh, mm, ss);
-              } else {
-                const dateMatch = event.timestamp.match(/(\d{1,2})-(\d{1,2})-(\d{4})/);
-                if (dateMatch) {
-                  const [_, d, m, y] = dateMatch;
-                  date = new Date(y, m - 1, d);
-                }
               }
             }
 
-            // Formatting
-            const timeStr = isNaN(date.getTime()) ? '--:--' : date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
-            const dateStr = isNaN(date.getTime()) ? '' : date.toLocaleDateString([], { day: '2-digit', month: 'short' });
+            const isGood = event.type === 'Good' || event.type === 'Good posture';
+            if (isGood) goodCount++; else badCount++;
 
-            const newItem = document.createElement('div');
-            const isAligned = event.type === 'Good' || event.type === 'Good posture';
-            newItem.className = isAligned ? 'timeline-item' : 'timeline-item bad';
+            const timeStr = isNaN(date.getTime()) ? '--:--' : date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            
+            const eventEl = document.createElement('div');
+            eventEl.className = 'timeline-event glass-card';
+            eventEl.style.opacity = '0';
+            eventEl.style.transform = 'translateX(-20px)';
 
-            const timeSpan = document.createElement('span');
-            timeSpan.className = 'tl-time';
-            timeSpan.textContent = dateStr ? `${dateStr}, ${timeStr}` : 'Unknown Time';
+            eventEl.innerHTML = `
+              <div class="event-icon ${isGood ? 'good' : 'bad'}">
+                <i class="ph ${isGood ? 'ph-check-circle' : 'ph-warning-circle'}"></i>
+              </div>
+              <div class="event-details">
+                <div class="event-header">
+                  <span class="event-type">${isGood ? 'Optimal Alignment' : 'Posture Correction'}</span>
+                  <span class="event-time">${timeStr}</span>
+                </div>
+                <div class="event-meta">
+                  <span class="event-deviation">${(event.deviation || 0).toFixed(1)}° deviation</span>
+                  <span style="opacity: 0.5;">•</span>
+                  <span>${isGood ? 'Perfect balance' : 'Slouch detected'}</span>
+                </div>
+              </div>
+            `;
 
-            const textSpan = document.createElement('span');
-            textSpan.className = 'tl-text';
-            textSpan.textContent = `${event.type} (${(event.deviation || 0).toFixed(0)} dev)`;
+            container.appendChild(eventEl);
+          });
 
-            newItem.appendChild(timeSpan);
-            newItem.appendChild(textSpan);
-            timelineContainer.appendChild(newItem);
+          // Update counts
+          goodCountEl.textContent = goodCount;
+          badCountEl.textContent = badCount;
+
+          // Entrance Animation
+          anime({
+            targets: '.timeline-event',
+            opacity: [0, 1],
+            translateX: [-20, 0],
+            delay: anime.stagger(100),
+            easing: 'easeOutExpo',
+            duration: 800
+          });
+
+          anime({
+            targets: '.summary-stat',
+            scale: [0.9, 1],
+            opacity: [0, 1],
+            delay: anime.stagger(200),
+            easing: 'easeOutElastic(1, .8)',
+            duration: 1000
           });
         });
       });

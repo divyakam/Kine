@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,74 +8,294 @@
   <title>KINE — Leaderboard</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet">
   <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
   <link rel="stylesheet" href="styles.css">
+  <script src="splash.js" defer></script>
+  <style>
+    .leaderboard-container {
+      width: 100%;
+      max-width: var(--max-content-width);
+      margin: 0 auto;
+      padding-bottom: 120px;
+    }
+
+    /* Podium Styles */
+    .podium {
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      gap: 16px;
+      margin-bottom: 60px;
+      margin-top: 40px;
+    }
+
+    .podium-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      width: 140px;
+      padding: 24px 16px;
+      text-align: center;
+      position: relative;
+    }
+
+    .podium-item.rank-1 {
+      height: 240px;
+      order: 2;
+      border-color: rgba(253, 230, 138, 0.3);
+      background: linear-gradient(to top, rgba(253, 230, 138, 0.1), transparent);
+    }
+    .podium-item.rank-2 {
+      height: 200px;
+      order: 1;
+      border-color: rgba(196, 181, 253, 0.3);
+      background: linear-gradient(to top, rgba(196, 181, 253, 0.1), transparent);
+    }
+    .podium-item.rank-3 {
+      height: 180px;
+      order: 3;
+      border-color: rgba(251, 165, 165, 0.3);
+      background: linear-gradient(to top, rgba(251, 165, 165, 0.1), transparent);
+    }
+
+    .podium-avatar {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 1.5rem;
+      border: 3px solid rgba(255,255,255,0.1);
+      box-shadow: 0 0 20px rgba(0,0,0,0.3);
+    }
+
+    .rank-1 .podium-avatar { border-color: #FDE68A; box-shadow: 0 0 25px rgba(253, 230, 138, 0.4); }
+    .rank-2 .podium-avatar { border-color: #C4B5FD; box-shadow: 0 0 25px rgba(196, 181, 253, 0.3); }
+    .rank-3 .podium-avatar { border-color: #FCA5A5; box-shadow: 0 0 25px rgba(251, 165, 165, 0.3); }
+
+    .podium-badge {
+      position: absolute;
+      top: -15px;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 0.8rem;
+    }
+    .rank-1 .podium-badge { background: #FDE68A; color: #92400E; }
+    .rank-2 .podium-badge { background: #C4B5FD; color: #4C1D95; }
+    .rank-3 .podium-badge { background: #FCA5A5; color: #7F1D1D; }
+
+    /* List Styles */
+    .lb-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .lb-item {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      padding: 16px 24px;
+      border-radius: 16px;
+      background: var(--surface-low);
+      border: 1px solid var(--glass-border);
+      transition: var(--transition-smooth);
+    }
+
+    .lb-item.user-highlight {
+      border-color: var(--accent-primary);
+      background: linear-gradient(90deg, rgba(129, 236, 255, 0.1), transparent);
+      box-shadow: 0 0 20px rgba(129, 236, 255, 0.05);
+    }
+
+    .lb-rank {
+      width: 24px;
+      font-weight: 800;
+      font-size: 0.9rem;
+      opacity: 0.5;
+    }
+
+    .lb-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--surface-medium);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1rem;
+    }
+
+    .lb-name {
+      flex: 1;
+      font-weight: 600;
+    }
+
+    .lb-points {
+      font-family: 'Manrope', sans-serif;
+      font-weight: 800;
+      color: var(--accent-primary);
+    }
+
+    @media (min-width: 768px) {
+      .leaderboard-container {
+        padding: 40px 0px;
+      }
+    }
+
+    @media (max-width: 767px) {
+      .podium {
+        gap: 8px;
+        margin-bottom: 40px;
+        margin-top: 24px;
+      }
+
+      .podium-item {
+        width: 100px;
+        padding: 16px 8px;
+      }
+
+      .podium-item.rank-1 { height: 180px; }
+      .podium-item.rank-2 { height: 150px; }
+      .podium-item.rank-3 { height: 140px; }
+
+      .podium-avatar {
+        width: 48px;
+        height: 48px;
+        font-size: 1.1rem;
+      }
+
+      .podium-badge {
+        width: 24px;
+        height: 24px;
+        font-size: 0.65rem;
+        top: -10px;
+      }
+
+      .lb-item {
+        gap: 12px;
+        padding: 12px 16px;
+      }
+
+      .lb-name { font-size: 0.9rem; }
+      .lb-points { font-size: 0.9rem; }
+    }
+  </style>
 </head>
+
 <body>
 
-<main id="app-container">
-  <section class="screen active" id="leaderboard">
-    <a href="journey.html" class="back-btn"><i class="ph ph-arrow-left"></i> Back</a>
-    <h2 class="screen-title">Leaderboard</h2>
-    <p class="screen-subtitle">See how you rank among KINE users.</p>
-    <div class="leaderboard-list">
-      <div class="leaderboard-item">
-        <span class="rank gold">1</span>
-        <div class="avatar" style="background:linear-gradient(135deg,#FDE68A,#FCD34D);color:#92400E;">M</div>
-        <span class="lb-name">Maya</span>
-        <span class="lb-score">950</span>
-      </div>
-      <div class="leaderboard-item">
-        <span class="rank silver">2</span>
-        <div class="avatar" style="background:linear-gradient(135deg,#C4B5FD,#8B5CF6);color:#fff;">J</div>
-        <span class="lb-name">Jordan</span>
-        <span class="lb-score">880</span>
-      </div>
-      <div class="leaderboard-item" style="background:var(--accent-primary-light);border:2px solid var(--accent-primary);">
-        <span class="rank bronze">3</span>
-        <div class="avatar avatar-glow">A</div>
-        <span class="lb-name">Alex (You)</span>
-        <span class="lb-score">780</span>
-      </div>
-      <div class="leaderboard-item">
-        <span class="rank">4</span>
-        <div class="avatar" style="background:linear-gradient(135deg,#FCA5A5,#EF4444);color:#fff;">T</div>
-        <span class="lb-name">Taylor</span>
-        <span class="lb-score">720</span>
-      </div>
-      <div class="leaderboard-item">
-        <span class="rank">5</span>
-        <div class="avatar" style="background:linear-gradient(135deg,#6EE7B7,#10B981);color:#fff;">R</div>
-        <span class="lb-name">Riley</span>
-        <span class="lb-score">690</span>
-      </div>
+  <div class="bg-glows">
+    <div class="glow-orb glow-1"></div>
+    <div class="glow-orb glow-2"></div>
+  </div>
+  <div class="grid-overlay"></div>
+
+  <nav class="side-nav" aria-label="Main navigation">
+    <div class="nav-logo">
+      <div class="logo-circle">K</div><span>KINE</span>
     </div>
-  </section>
-</main>
+    <a href="dashboard.html" class="nav-item" data-page="dashboard"><i
+        class="ph ph-house"></i><span>Dashboard</span></a>
+    <a href="live-posture.html" class="nav-item" data-page="live-posture"><i class="ph ph-activity"></i><span>Live
+        Posture</span></a>
+    <a href="journey.html" class="nav-item" data-page="journey"><i class="ph ph-trophy"></i><span>Journey</span></a>
+    <a href="analytics.html" class="nav-item" data-page="analytics"><i
+        class="ph ph-chart-line-up"></i><span>Analytics</span></a>
+    <a href="timeline.html" class="nav-item" data-page="timeline"><i
+        class="ph ph-clock-countdown"></i><span>Timeline</span></a>
+    <a href="missions.html" class="nav-item" data-page="missions"><i class="ph ph-target"></i><span>Missions</span></a>
+    <a href="leaderboard.html" class="nav-item active" data-page="leaderboard"><i
+        class="ph ph-ranking"></i><span>Leaderboard</span></a>
+    <div class="nav-spacer"></div>
+    <a href="settings.html" class="nav-item" data-page="settings"><i class="ph ph-gear"></i><span>Settings</span></a>
+  </nav>
 
-<!-- Bottom Nav -->
-<nav class="bottom-nav" aria-label="Main navigation">
-  <a href="dashboard.html" class="nav-item" data-page="dashboard"><i class="ph ph-house"></i><span>Home</span></a>
-  <a href="live-posture.html" class="nav-item" data-page="live-posture"><i class="ph ph-activity"></i><span>Live</span></a>
-  <a href="journey.html" class="nav-item" data-page="journey"><i class="ph ph-trophy"></i><span>Journey</span></a>
-  <a href="analytics.html" class="nav-item" data-page="analytics"><i class="ph ph-chart-line-up"></i><span>Insights</span></a>
-  <a href="settings.html" class="nav-item" data-page="settings"><i class="ph ph-gear"></i><span>Settings</span></a>
-</nav>
+  <main id="app-container">
+    <section class="screen active" id="leaderboard-hub">
+      <div class="leaderboard-container">
+        
+        <header class="hud-header">
+          <span class="caption" style="color: var(--accent-primary); letter-spacing: 0.3em;">GLOBAL RANKING</span>
+          <h1 class="heading-lg" style="margin-top: 4px;">Hall of Zenith</h1>
+        </header>
 
-<!-- Side Nav -->
-<nav class="side-nav" aria-label="Main navigation">
-  <div class="nav-logo"><div class="logo-circle">K</div><span>KINE</span></div>
-  <a href="dashboard.html" class="nav-item" data-page="dashboard"><i class="ph ph-house"></i><span>Dashboard</span></a>
-  <a href="live-posture.html" class="nav-item" data-page="live-posture"><i class="ph ph-activity"></i><span>Live Posture</span></a>
-  <a href="journey.html" class="nav-item" data-page="journey"><i class="ph ph-trophy"></i><span>Journey</span></a>
-  <a href="analytics.html" class="nav-item" data-page="analytics"><i class="ph ph-chart-line-up"></i><span>Analytics</span></a>
-  <a href="timeline.html" class="nav-item" data-page="timeline"><i class="ph ph-clock-countdown"></i><span>Timeline</span></a>
-  <a href="missions.html" class="nav-item" data-page="missions"><i class="ph ph-target"></i><span>Missions</span></a>
-  <a href="leaderboard.html" class="nav-item" data-page="leaderboard"><i class="ph ph-ranking"></i><span>Leaderboard</span></a>
-  <div class="nav-spacer"></div>
-  <a href="settings.html" class="nav-item" data-page="settings"><i class="ph ph-gear"></i><span>Settings</span></a>
-</nav>
+        <!-- Podium Section -->
+        <div class="podium">
+          <div class="glass-card podium-item rank-2 anim-podium">
+            <div class="podium-badge">2</div>
+            <div class="podium-avatar" style="background: linear-gradient(135deg, #C4B5FD, #8B5CF6);">J</div>
+            <span class="lb-name">Jordan</span>
+            <span class="lb-points">880</span>
+          </div>
+          <div class="glass-card podium-item rank-1 anim-podium">
+            <div class="podium-badge"><i class="ph ph-crown"></i></div>
+            <div class="podium-avatar" style="background: linear-gradient(135deg, #FDE68A, #FCD34D); color: #92400E;">M</div>
+            <span class="lb-name">Maya</span>
+            <span class="lb-points">950</span>
+          </div>
+          <div class="glass-card podium-item rank-3 anim-podium">
+            <div class="podium-badge">3</div>
+            <div class="podium-avatar" style="background: linear-gradient(135deg, #FCA5A5, #EF4444);">T</div>
+            <span class="lb-name">Taylor</span>
+            <span class="lb-points">720</span>
+          </div>
+        </div>
+
+        <!-- Scrollable List -->
+        <div class="lb-list">
+          <div class="lb-item user-highlight anim-stagger">
+            <span class="lb-rank">4</span>
+            <div class="lb-avatar avatar-glow" id="my-avatar">A</div>
+            <span class="lb-name" id="my-name">Alex (You)</span>
+            <span class="lb-points" id="my-score">780</span>
+          </div>
+          <div class="lb-item anim-stagger">
+            <span class="lb-rank">5</span>
+            <div class="lb-avatar" style="background: linear-gradient(135deg, #6EE7B7, #10B981);">R</div>
+            <span class="lb-name">Riley</span>
+            <span class="lb-points">690</span>
+          </div>
+          <div class="lb-item anim-stagger">
+            <span class="lb-rank">6</span>
+            <div class="lb-avatar" style="background: linear-gradient(135deg, #93C5FD, #3B82F6);">C</div>
+            <span class="lb-name">Casey</span>
+            <span class="lb-points">640</span>
+          </div>
+          <div class="lb-item anim-stagger">
+            <span class="lb-rank">7</span>
+            <div class="lb-avatar" style="background: linear-gradient(135deg, #F9A8D4, #EC4899);">B</div>
+            <span class="lb-name">Blake</span>
+            <span class="lb-points">580</span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+  <nav class="bottom-nav" aria-label="Main navigation">
+    <a href="dashboard.html" class="nav-item" data-page="dashboard"><i class="ph ph-house"></i><span>Home</span></a>
+    <a href="live-posture.html" class="nav-item" data-page="live-posture"><i
+        class="ph ph-activity"></i><span>Live</span></a>
+    <a href="journey.html" class="nav-item" data-page="journey"><i class="ph ph-trophy"></i><span>Journey</span></a>
+    <a href="analytics.html" class="nav-item" data-page="analytics"><i
+        class="ph ph-chart-line-up"></i><span>Insights</span></a>
+    <a href="settings.html" class="nav-item" data-page="settings"><i class="ph ph-gear"></i><span>Settings</span></a>
+  </nav>
 
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -83,23 +304,55 @@
   <script src="firebase-config.js"></script>
   <script src="auth.js"></script>
   <script src="nav.js"></script>
-
   <script src="db.js"></script>
 
   <script>
-    (function() {
+    (function () {
       KINEAuth.requireAuth();
 
       KINEAuth.onReady(user => {
         if (!user) return;
 
+        // Entrance Animation
+        anime.timeline({
+          easing: 'easeOutExpo',
+          duration: 1200
+        })
+        .add({
+          targets: '.hud-header',
+          opacity: [0, 1],
+          translateY: [-20, 0]
+        })
+        .add({
+          targets: '.anim-podium',
+          opacity: [0, 1],
+          translateY: [60, 0],
+          scale: [0.9, 1],
+          delay: anime.stagger(150)
+        }, '-=800')
+        .add({
+          targets: '.anim-stagger',
+          opacity: [0, 1],
+          translateX: [-20, 0],
+          delay: anime.stagger(100)
+        }, '-=600');
+
+        // Background Glow Animation
+        anime({
+          targets: '.glow-orb',
+          scale: [1, 1.2],
+          opacity: [0.1, 0.15],
+          duration: 10000,
+          direction: 'alternate',
+          loop: true,
+          easing: 'easeInOutSine'
+        });
+
         // Fetch display name
         KINEdb.onProfile(user.uid, profile => {
           if (profile && profile.name) {
-            const myNameSpan = document.querySelector('.leaderboard-item[style*="var(--accent-primary-light)"] .lb-name');
-            const myAvatar = document.querySelector('.leaderboard-item[style*="var(--accent-primary-light)"] .avatar');
-            if (myNameSpan) myNameSpan.textContent = profile.name + ' (You)';
-            if (myAvatar) myAvatar.textContent = profile.name.charAt(0).toUpperCase();
+            document.getElementById('my-name').textContent = profile.name + ' (You)';
+            document.getElementById('my-avatar').textContent = profile.name.charAt(0).toUpperCase();
           }
         });
 
@@ -107,7 +360,7 @@
         KINEdb.onLiveDevicePosture(deviceInfo => {
           if (!deviceInfo) return;
           
-          const myScoreSpan = document.querySelector('.leaderboard-item[style*="var(--accent-primary-light)"] .lb-score');
+          const myScoreSpan = document.getElementById('my-score');
           if (myScoreSpan) {
              const basePoints = 700; 
              const liveScore = basePoints + Math.round((deviceInfo.currentScore || 0) * 1.5);
@@ -118,4 +371,5 @@
     })();
   </script>
 </body>
+
 </html>

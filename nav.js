@@ -11,31 +11,31 @@
   // ================================================================
 
   const PAGE_MAP = {
-    'sign-up':            'signup.html',
-    'log-in':             'login.html',
-    'forgot-password':    'forgot-password.html',
-    'wear-instruction':   'setup.html',
-    'user-selection':     'user-selection.html',
-    'home-dashboard':     'dashboard.html',
-    'live-posture':       'live-posture.html',
-    'notifications':      'notifications.html',
-    'analytics':          'analytics.html',
-    'daily-timeline':     'timeline.html',
-    'journey':            'journey.html',
-    'leaderboard':        'leaderboard.html',
-    'daily-missions':     'missions.html',
-    'settings-hub':       'settings.html',
-    'device-management':  'device-management.html',
-    'recalibrate':        'recalibrate.html',
-    'vibration-haptics':  'vibration.html',
-    'smart-sleep':        'smart-sleep.html',
-    'edit-profile':       'edit-profile.html',
-    'help-support':       'help.html',
-    'intro-screens':      'intro.html',
-    'splash-screen':      'index.html',
+    'sign-up': 'signup.html',
+    'log-in': 'login.html',
+    'forgot-password': 'forgot-password.html',
+    'wear-instruction': 'setup.html',
+    'user-selection': 'user-selection.html',
+    'home-dashboard': 'dashboard.html',
+    'live-posture': 'live-posture.html',
+    'notifications': 'notifications.html',
+    'analytics': 'analytics.html',
+    'daily-timeline': 'timeline.html',
+    'journey': 'journey.html',
+    'leaderboard': 'leaderboard.html',
+    'daily-missions': 'missions.html',
+    'settings-hub': 'settings.html',
+    'device-management': 'device-management.html',
+    'recalibrate': 'recalibrate.html',
+    'vibration-haptics': 'vibration.html',
+    'smart-sleep': 'smart-sleep.html',
+    'edit-profile': 'edit-profile.html',
+    'help-support': 'help.html',
+    'intro-screens': 'intro.html',
+    'splash-screen': 'index.html',
     'state-disconnected': 'disconnected.html',
     'state-recalib-prompt': 'recalib-prompt.html',
-    'state-empty':        'empty-state.html'
+    'state-empty': 'empty-state.html'
   };
 
   // Handle data-navigate clicks — navigate to the mapped page URL
@@ -69,24 +69,24 @@
   // ================================================================
 
   const NAV_MAP = {
-    'dashboard':          'dashboard',
-    'live-posture':       'live-posture',
-    'journey':            'journey',
-    'analytics':          'analytics',
-    'settings':           'settings',
-    'timeline':           'timeline',
-    'leaderboard':        'leaderboard',
-    'missions':           'missions',
-    'device-management':  'device-management',
-    'recalibrate':        'recalibrate',
-    'vibration':          'vibration',
-    'smart-sleep':        'smart-sleep',
-    'notifications':      'notifications',
-    'edit-profile':       'edit-profile',
-    'help':               'help',
-    'disconnected':       'dashboard',
-    'recalib-prompt':     'settings',
-    'empty-state':        'dashboard'
+    'dashboard': 'dashboard',
+    'live-posture': 'live-posture',
+    'journey': 'journey',
+    'analytics': 'analytics',
+    'settings': 'settings',
+    'timeline': 'timeline',
+    'leaderboard': 'leaderboard',
+    'missions': 'missions',
+    'device-management': 'device-management',
+    'recalibrate': 'recalibrate',
+    'vibration': 'vibration',
+    'smart-sleep': 'smart-sleep',
+    'notifications': 'notifications',
+    'edit-profile': 'edit-profile',
+    'help': 'help',
+    'disconnected': 'dashboard',
+    'recalib-prompt': 'settings',
+    'empty-state': 'dashboard'
   };
 
   function highlightActiveNav() {
@@ -94,7 +94,7 @@
     const path = window.location.pathname;
     const fileName = path.split(/[/\\]/).pop() || 'index.html';
     const currentFile = fileName.replace('.html', '') || 'index';
-    
+
     // Exact match target
     const activeId = NAV_MAP[currentFile] || currentFile;
 
@@ -209,8 +209,69 @@
   }
 
   // ================================================================
-  // UTILITY
+  // SIDEBAR ENHANCEMENTS
   // ================================================================
+
+  function initBranding() {
+    const navLogo = document.querySelector('.side-nav .nav-logo');
+    if (navLogo) {
+      navLogo.innerHTML = `
+        <img src="logo.svg" alt="KINE Logo" class="brand-logo">
+      `;
+    }
+  }
+
+  // ================================================================
+  // HAMBURGER MENU (Mobile)
+  // ================================================================
+
+  function initHamburgerMenu() {
+    // Only initialize on mobile
+    const isMobile = window.matchMedia('(max-width: 767px)');
+    if (!isMobile.matches) return;
+
+    const sideNav = document.querySelector('.side-nav');
+    if (!sideNav) return;
+
+    // --- Inject Hamburger Button ---
+    const hamburger = document.createElement('button');
+    hamburger.className = 'hamburger-btn';
+    hamburger.setAttribute('aria-label', 'Open navigation menu');
+    hamburger.innerHTML = `
+      <span class="hamburger-line"></span>
+      <span class="hamburger-line"></span>
+      <span class="hamburger-line"></span>
+    `;
+    document.body.appendChild(hamburger);
+
+    // --- Make side-nav a mobile overlay menu ---
+    sideNav.classList.add('mobile-overlay-menu');
+
+    function openMenu() {
+      sideNav.classList.add('menu-active');
+      hamburger.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeMenu() {
+      sideNav.classList.remove('menu-active');
+      hamburger.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    hamburger.addEventListener('click', () => {
+      if (sideNav.classList.contains('menu-active')) {
+        closeMenu();
+      } else {
+        openMenu();
+      }
+    });
+
+    // Close on nav item click
+    sideNav.querySelectorAll('.nav-item').forEach(item => {
+      item.addEventListener('click', closeMenu);
+    });
+  }
 
   function animateCounter(el, from, to, duration, decimals = 0, suffix = '') {
     const start = performance.now();
@@ -225,11 +286,8 @@
     requestAnimationFrame(update);
   }
 
-  // ================================================================
-  // INITIALIZATION
-  // ================================================================
-
   function init() {
+    initBranding();
     initPageNavigation();
     initBackButtons();
     highlightActiveNav();
@@ -241,6 +299,7 @@
     initOverlayClose();
     initQuickSwitch();
     initSegmentedToggle();
+    initHamburgerMenu();
   }
 
   if (document.readyState === 'loading') {
